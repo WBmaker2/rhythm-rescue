@@ -8,7 +8,8 @@ export function generatePattern(length: number, random: () => number): Direction
   }
 
   return Array.from({ length }, () => {
-    const sample = Math.min(0.999999, Math.max(0, random()));
+    const raw = random();
+    const sample = Number.isFinite(raw) ? Math.min(0.999999, Math.max(0, raw)) : 0;
     return DIRECTIONS[Math.floor(sample * DIRECTIONS.length)];
   });
 }

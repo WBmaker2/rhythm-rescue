@@ -14,4 +14,11 @@ describe('pattern generator', () => {
 
     expect(pattern.every((direction) => ['up', 'right', 'down', 'left'].includes(direction))).toBe(true);
   });
+
+  it('falls back to a valid direction when random returns NaN', () => {
+    const pattern = generatePattern(4, () => Number.NaN);
+
+    expect(pattern).toHaveLength(4);
+    expect(pattern.every((direction) => ['up', 'right', 'down', 'left'].includes(direction))).toBe(true);
+  });
 });
