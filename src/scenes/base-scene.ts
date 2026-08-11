@@ -3,6 +3,7 @@ import type { Progress } from '../core/progression';
 import { createProgressStore } from '../storage/progress-store';
 import { createAccessibilityPanel, applyAccessibilitySettings } from '../ui/accessibility-panel';
 import { createUiButton, resetGameUi } from '../ui/direction-pad';
+import { getMissionConfig } from '../core/mission-config';
 
 export interface SceneProgressData {
   progress?: Progress;
@@ -41,7 +42,10 @@ export class BaseScene extends Phaser.Scene {
       }),
     );
     const startButton = createUiButton('첫 구조 임무 시작', () => {
-      this.scene.start('MissionScene', { progress: this.progress });
+      this.scene.start('MissionScene', {
+        progress: this.progress,
+        config: getMissionConfig('short-01'),
+      });
     });
     startButton.classList.add('start-button');
     screen.append(startButton);

@@ -4,9 +4,13 @@ import type { Direction } from '../core/types';
 import { directionFromKeyboard } from '../input/input-adapter';
 import { createDirectionPad, createUiButton, resetGameUi } from '../ui/direction-pad';
 import type { Progress } from '../core/progression';
+import { getMissionConfig } from '../core/mission-config';
+import type { MissionConfig } from '../core/types';
+import { createObstacleLayer } from '../ui/obstacle-layer';
 
 interface MissionData {
   progress: Progress;
+  config?: MissionConfig;
 }
 
 const TUTORIAL_PATTERN: Direction[] = ['up'];
@@ -15,6 +19,7 @@ const SYMBOLS: Record<Direction, string> = { up: '↑', right: '→', down: '↓
 export class MissionScene extends Phaser.Scene {
   private progress!: Progress;
   private state!: MissionState;
+  private config!: MissionConfig;
   private paused = false;
   private previewVisible = true;
   private previewTimer?: number;
@@ -37,6 +42,7 @@ export class MissionScene extends Phaser.Scene {
 
   create(data: MissionData): void {
     this.progress = data.progress;
+    this.config = data.config ?? getMissionConfig('short-01');
     this.state = { ...createMissionState(TUTORIAL_PATTERN), phase: 'input' };
     this.previewVisible = true;
     this.previewTimer = window.setTimeout(() => {
@@ -108,6 +114,8 @@ export class MissionScene extends Phaser.Scene {
       </div>
     `;
     screen.append(createDirectionPad((direction) => this.handleDirection(direction)));
+    const obstacleLayer = createObstacleLayer(this.config.obstacle);
+    if (obstacleLayer) screen.append(obstacleLayer);
     if (this.paused) {
       const pauseOverlay = document.createElement('div');
       pauseOverlay.className = 'pause-overlay';

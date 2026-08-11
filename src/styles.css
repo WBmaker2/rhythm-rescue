@@ -253,6 +253,56 @@ strong {
 .direction-down { grid-area: down; }
 .direction-left { grid-area: left; }
 
+.obstacle-layer {
+  position: absolute;
+  right: 8%;
+  bottom: 114px;
+  left: 8%;
+  height: 70px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.obstacle-layer span {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 120px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 209, 102, 0.7);
+  border-radius: 12px;
+  color: #ffd166;
+  background: rgba(38, 29, 50, 0.92);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.obstacle-drone {
+  animation: drone-sweep 420ms ease-in-out 1;
+}
+
+.obstacle-occluder {
+  animation: shield-sweep 420ms ease-in-out 1;
+}
+
+.obstacle-mixed .obstacle-occluder {
+  animation-delay: 440ms;
+}
+
+@keyframes drone-sweep {
+  from { transform: translateX(-140%); opacity: 0; }
+  35% { opacity: 1; }
+  to { transform: translateX(110%); opacity: 0; }
+}
+
+@keyframes shield-sweep {
+  from { transform: translateX(110%); opacity: 0; }
+  35% { opacity: 1; }
+  to { transform: translateX(-140%); opacity: 0; }
+}
+
 .pause-overlay {
   position: absolute;
   inset: 0;
