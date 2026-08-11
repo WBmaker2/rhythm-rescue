@@ -40,4 +40,36 @@ describe('progress store', () => {
     expect(store.load()).toEqual(defaultProgress());
     expect(store.save(defaultProgress())).toBe(false);
   });
+
+  it('rejects structurally invalid persisted progress', () => {
+    const invalid = {
+      getItem: () => JSON.stringify({
+        stars: -1,
+        parts: 2,
+        baseLevel: 99,
+        unlockedMissionIds: [123],
+        settings: { sound: true, vibration: true, reducedMotion: false, relaxedTiming: false },
+      }),
+      setItem: () => undefined,
+      removeItem: () => undefined,
+      clear: () => undefined,
+      key: () => null,
+      length: 1,
+    } as unknown as Storage;
+
+    expect(createProgressStore(invalid).load()).toEqual(defaultProgress());
+  });
+
+  it('returns defaults when reading storage is blocked', () => {
+    const blocked = {
+      getItem: () => { throw new Error('blocked'); },
+      setItem: () => undefined,
+      removeItem: () => undefined,
+      clear: () => undefined,
+      key: () => null,
+      length: 0,
+    } as unknown as Storage;
+
+    expect(createProgressStore(blocked).load()).toEqual(defaultProgress());
+  });
 });

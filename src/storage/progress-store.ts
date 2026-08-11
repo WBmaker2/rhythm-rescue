@@ -6,11 +6,19 @@ function isProgress(value: unknown): value is Progress {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Partial<Progress>;
   const settings = candidate.settings as Partial<Progress['settings']> | undefined;
-  return (
-    typeof candidate.stars === 'number' &&
-    typeof candidate.parts === 'number' &&
+  const validCount = (count: unknown): count is number =>
+    typeof count === 'number' && Number.isSafeInteger(count) && count >= 0;
+  const validBaseLevel =
     typeof candidate.baseLevel === 'number' &&
+    Number.isInteger(candidate.baseLevel) &&
+    candidate.baseLevel >= 1 &&
+    candidate.baseLevel <= 5;
+  return (
+    validCount(candidate.stars) &&
+    validCount(candidate.parts) &&
+    validBaseLevel &&
     Array.isArray(candidate.unlockedMissionIds) &&
+    candidate.unlockedMissionIds.every((missionId) => typeof missionId === 'string') &&
     !!settings &&
     typeof settings.sound === 'boolean' &&
     typeof settings.vibration === 'boolean' &&

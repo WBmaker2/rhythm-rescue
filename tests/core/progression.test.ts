@@ -22,5 +22,6 @@ describe('progression', () => {
 
     expect(reward).toMatchObject({ stars: 3, parts: 3, baseLevel: 2 });
     expect(applyMissionReward(reward, 2)).toMatchObject({ stars: 5, parts: 5, baseLevel: 2 });
+    expect(applyMissionReward({ ...reward, parts: 12 }, 3).baseLevel).toBe(5);
   });
 });
