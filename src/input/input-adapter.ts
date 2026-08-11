@@ -26,12 +26,14 @@ export function createInputGate(minIntervalMs: number): {
   }
 
   let lastAcceptedAt = Number.NEGATIVE_INFINITY;
+  let lastAcceptedDirection: Direction | null = null;
   return {
     accept(direction, now) {
-      if (now - lastAcceptedAt < minIntervalMs) {
+      if (direction === lastAcceptedDirection && now - lastAcceptedAt < minIntervalMs) {
         return null;
       }
       lastAcceptedAt = now;
+      lastAcceptedDirection = direction;
       return direction;
     },
   };

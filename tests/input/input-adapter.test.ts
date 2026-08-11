@@ -6,8 +6,11 @@ describe('input adapter', () => {
     expect(directionFromKeyboard('ArrowUp')).toBe('up');
     expect(directionFromKeyboard('w')).toBe('up');
     expect(directionFromKeyboard('D')).toBe('right');
+    expect(directionFromKeyboard('ArrowRight')).toBe('right');
     expect(directionFromKeyboard('ArrowDown')).toBe('down');
+    expect(directionFromKeyboard('s')).toBe('down');
     expect(directionFromKeyboard('a')).toBe('left');
+    expect(directionFromKeyboard('ArrowLeft')).toBe('left');
     expect(directionFromKeyboard('Enter')).toBeNull();
   });
 
@@ -16,6 +19,8 @@ describe('input adapter', () => {
 
     expect(gate.accept('up', 100)).toBe('up');
     expect(gate.accept('up', 120)).toBeNull();
+    expect(gate.accept('left', 121)).toBe('left');
+    expect(gate.accept('left', 140)).toBeNull();
     expect(gate.accept('up', 181)).toBe('up');
   });
 });
