@@ -4,7 +4,7 @@ export type MissionPhase = 'preview' | 'input' | 'recovery' | 'complete';
 
 export interface MissionState {
   phase: MissionPhase;
-  pattern: Direction[];
+  readonly pattern: readonly Direction[];
   cursor: number;
   mistakes: number;
   recoveriesLeft: number;
@@ -16,7 +16,7 @@ export interface MissionState {
 export function createMissionState(pattern: Direction[]): MissionState {
   return {
     phase: 'preview',
-    pattern: [...pattern],
+    pattern: Object.freeze([...pattern]),
     cursor: 0,
     mistakes: 0,
     recoveriesLeft: 2,
