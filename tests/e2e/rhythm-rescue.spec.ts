@@ -7,3 +7,26 @@ test('starts and completes the tutorial rescue', async ({ page }) => {
   await page.getByRole('button', { name: '위 수리 신호' }).click();
   await expect(page.getByText('임무 결과')).toBeVisible();
 });
+
+test('pauses the mission and can reduce motion', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '접근성 설정' }).click();
+  await page.getByLabel('화면 흔들림 줄이기').check();
+  await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await expect(page.getByText('임무 일시정지')).toBeVisible();
+});
+
+test('supports keyboard input and returns to base with saved progress', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  await page.keyboard.press('ArrowUp');
+  await expect(page.getByText('임무 결과')).toBeVisible();
+  await page.getByRole('button', { name: '본부로 돌아가기' }).click();
+  await expect(page.getByText('구조 부품')).toBeVisible();
+
+  const savedProgress = await page.evaluate(() =>
+    JSON.parse(window.localStorage.getItem('rhythm-rescue-progress-v1') ?? 'null'),
+  );
+  expect(savedProgress.parts).toBe(3);
+});
