@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { createProgressStore } from '../storage/progress-store';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -6,11 +7,8 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.add
-      .text(640, 360, '리듬 구조대', {
-        color: '#ffffff',
-        fontSize: '48px',
-      })
-      .setOrigin(0.5);
+    this.scene.start('BaseScene', {
+      progress: createProgressStore(window.localStorage).load(),
+    });
   }
 }
