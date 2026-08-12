@@ -74,6 +74,8 @@ test('supports keyboard input and returns to base with saved progress', async ({
   await page.goto('/');
   await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
   await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
   await expect(page.getByText('임무 결과')).toBeVisible();
   await page.getByRole('button', { name: '본부로 돌아가기' }).click();
   await expect(page.getByText('구조 부품')).toBeVisible();
