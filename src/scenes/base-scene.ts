@@ -24,6 +24,12 @@ export class BaseScene extends Phaser.Scene {
     const ui = resetGameUi();
     const screen = document.createElement('main');
     screen.className = 'screen base-screen';
+    const startMission = (missionId: string): void => {
+      this.scene.start('MissionScene', {
+        progress: this.progress,
+        config: getMissionConfig(missionId),
+      });
+    };
     screen.innerHTML = `
       <p class="eyebrow">리듬 구조대 본부</p>
       <h1>고장 난 친구를<br />리듬으로 깨워요</h1>
@@ -42,13 +48,17 @@ export class BaseScene extends Phaser.Scene {
       }),
     );
     const startButton = createUiButton('첫 구조 임무 시작', () => {
-      this.scene.start('MissionScene', {
-        progress: this.progress,
-        config: getMissionConfig('short-01'),
-      });
+      startMission('short-01');
     });
     startButton.classList.add('start-button');
-    screen.append(startButton);
+    const missionOptions = document.createElement('div');
+    missionOptions.className = 'mission-options';
+    missionOptions.setAttribute('aria-label', '다른 구조 임무');
+    missionOptions.append(
+      createUiButton('드론 경계 임무', () => startMission('medium-01')),
+      createUiButton('혼합 장애물 임무', () => startMission('long-01')),
+    );
+    screen.append(startButton, missionOptions);
     ui.append(screen);
   }
 }

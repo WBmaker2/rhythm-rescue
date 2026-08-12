@@ -93,6 +93,23 @@ body {
   margin: 28px 0;
 }
 
+.mission-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.mission-options .primary-button {
+  min-width: 0;
+  margin-top: 0;
+  padding: 12px 16px;
+  color: #c9ddff;
+  background: rgba(44, 81, 139, 0.75);
+  font-size: 0.9rem;
+}
+
 .base-stats span,
 .mission-footer span,
 .mission-chip {
@@ -285,6 +302,13 @@ strong {
 
 .obstacle-occluder {
   animation: shield-sweep 420ms ease-in-out 1;
+}
+
+.reduced-motion .obstacle-drone,
+.reduced-motion .obstacle-occluder {
+  animation: none;
+  opacity: 0.22;
+  transform: translateX(0);
 }
 
 .obstacle-mixed .obstacle-occluder {

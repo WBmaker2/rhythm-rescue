@@ -14,6 +14,11 @@ interface MissionData {
 }
 
 const TUTORIAL_PATTERN: Direction[] = ['up'];
+const MISSION_PATTERNS: Readonly<Record<string, Direction[]>> = {
+  'short-01': TUTORIAL_PATTERN,
+  'medium-01': ['up', 'right', 'down', 'left', 'up'],
+  'long-01': ['up', 'right', 'down', 'left', 'up', 'down', 'right'],
+};
 const SYMBOLS: Record<Direction, string> = { up: '↑', right: '→', down: '↓', left: '←' };
 
 export class MissionScene extends Phaser.Scene {
@@ -31,9 +36,16 @@ export class MissionScene extends Phaser.Scene {
       this.handleDirection(direction);
     }
   };
-  private readonly onBlur = (): void => {
+  private readonly pauseMission = (): void => {
+    if (this.paused) return;
     this.paused = true;
     this.render();
+  };
+  private readonly onBlur = (): void => {
+    this.pauseMission();
+  };
+  private readonly onVisibilityChange = (): void => {
+    if (document.visibilityState === 'hidden') this.pauseMission();
   };
 
   constructor() {
@@ -43,7 +55,8 @@ export class MissionScene extends Phaser.Scene {
   create(data: MissionData): void {
     this.progress = data.progress;
     this.config = data.config ?? getMissionConfig('short-01');
-    this.state = { ...createMissionState(TUTORIAL_PATTERN), phase: 'input' };
+    const pattern = MISSION_PATTERNS[this.config.id] ?? TUTORIAL_PATTERN;
+    this.state = { ...createMissionState([...pattern]), phase: 'input' };
     this.previewVisible = true;
     this.previewTimer = window.setTimeout(() => {
       this.previewVisible = false;
@@ -51,9 +64,11 @@ export class MissionScene extends Phaser.Scene {
     }, 1800);
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('blur', this.onBlur);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       window.removeEventListener('keydown', this.onKeyDown);
       window.removeEventListener('blur', this.onBlur);
+      document.removeEventListener('visibilitychange', this.onVisibilityChange);
       if (this.previewTimer !== undefined) window.clearTimeout(this.previewTimer);
     });
     this.add.text(64, 54, 'MISSION 01 / TUTORIAL', { color: '#73d7ff', fontSize: '20px' });

@@ -30,3 +30,36 @@ test('supports keyboard input and returns to base with saved progress', async ({
   );
   expect(savedProgress.parts).toBe(3);
 });
+
+test('opens the drone mission from base', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '드론 경계 임무' }).click();
+  await expect(page.getByText('DRONE SCAN')).toBeVisible();
+});
+
+test('opens the mixed obstacle mission from base', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '혼합 장애물 임무' }).click();
+  await expect(page.getByText('DRONE SCAN')).toBeVisible();
+  await expect(page.getByText('SIGNAL SHIELD')).toBeVisible();
+});
+
+test('pauses when document visibility changes to hidden', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(page.getByText('임무 일시정지')).toBeVisible();
+});
+
+test('reduced motion disables obstacle animation', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '접근성 설정' }).click();
+  await page.getByLabel('화면 흔들림 줄이기').check();
+  await page.getByRole('button', { name: '드론 경계 임무' }).click();
+  await expect.poll(async () =>
+    page.locator('.obstacle-layer .obstacle-drone').evaluate((element) => getComputedStyle(element).animationName),
+  ).toBe('none');
+});
