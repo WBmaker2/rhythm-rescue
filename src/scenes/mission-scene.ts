@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
+import { createFeedbackBus, type FeedbackBus, type FeedbackEvent } from '../core/feedback';
 import type { Direction } from '../core/types';
 import { directionFromKeyboard } from '../input/input-adapter';
 import { createDirectionPad, createUiButton, resetGameUi } from '../ui/direction-pad';
 import type { Progress } from '../core/progression';
 import { getMissionConfig } from '../core/mission-config';
 import type { MissionConfig } from '../core/types';
+import { createFeedbackEffects, type FeedbackEffects } from '../feedback/feedback-effects';
 import { createObstacleLayer } from '../ui/obstacle-layer';
 import {
   createMissionRun,
@@ -26,6 +28,8 @@ export class MissionScene extends Phaser.Scene {
   private progress!: Progress;
   private run!: MissionRunState;
   private config!: MissionConfig;
+  private feedbackBus?: FeedbackBus;
+  private feedbackEffects?: FeedbackEffects;
   private paused = false;
   private previewVisible = true;
   private previewTimer?: number;
@@ -56,6 +60,8 @@ export class MissionScene extends Phaser.Scene {
   create(data: MissionData): void {
     this.progress = data.progress;
     this.config = data.config ?? getMissionConfig('short-01');
+    this.feedbackBus = createFeedbackBus();
+    this.feedbackEffects = createFeedbackEffects(this.feedbackBus, this.progress.settings);
     this.run = createMissionRun(this.config, {
       random: Math.random,
       tutorialPatterns: this.config.id === 'short-01' ? TUTORIAL_PATTERNS : undefined,
@@ -68,6 +74,9 @@ export class MissionScene extends Phaser.Scene {
       window.removeEventListener('blur', this.onBlur);
       document.removeEventListener('visibilitychange', this.onVisibilityChange);
       if (this.previewTimer !== undefined) window.clearTimeout(this.previewTimer);
+      this.feedbackEffects?.dispose();
+      this.feedbackEffects = undefined;
+      this.feedbackBus = undefined;
     });
     this.add.text(64, 54, `MISSION / ${this.config.id.toUpperCase()}`, {
       color: '#73d7ff',
@@ -83,15 +92,35 @@ export class MissionScene extends Phaser.Scene {
       random: Math.random,
       tutorialPatterns: this.config.id === 'short-01' ? TUTORIAL_PATTERNS : undefined,
     });
+    const inputWasWrong = next.totalMistakes > previous.totalMistakes;
+    const inputWasAccepted =
+      !inputWasWrong
+      && (
+        next.currentPoint.cursor > previous.currentPoint.cursor
+        || next.completedPoints > previous.completedPoints
+        || next.phase === 'complete'
+      );
+
+    if (inputWasWrong) {
+      this.emitFeedback('input-wrong');
+    } else if (inputWasAccepted) {
+      this.emitFeedback('input-correct');
+    }
     if (next.currentPoint.phase === 'recovery') {
       this.run = useRunRecovery(next);
+      this.emitFeedback('recovery-used');
       this.previewVisible = false;
       this.render('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.');
       return;
     }
 
     this.run = next;
+    if (this.run.completedPoints > previous.completedPoints) {
+      this.emitFeedback('point-complete');
+    }
+
     if (this.run.phase === 'complete') {
+      this.emitFeedback('mission-complete');
       this.scene.start('ResultScene', {
         progress: this.progress,
         rewardTier: this.run.rewardTier,
@@ -107,6 +136,14 @@ export class MissionScene extends Phaser.Scene {
       this.startPreview();
     } else {
       this.render();
+    }
+  }
+
+  private emitFeedback(event: FeedbackEvent): void {
+    try {
+      this.feedbackBus?.emit(event);
+    } catch {
+      // Feedback failures must not affect mission input or navigation.
     }
   }
 
@@ -139,7 +176,7 @@ export class MissionScene extends Phaser.Scene {
         </div>
         <span class="mission-chip">수리 지점 ${this.run.completedPoints + 1} / ${this.run.repairPoints}</span>
       </div>
-      <p class="mission-message">${displayMessage}</p>
+      <p class="mission-message" aria-live="polite">${displayMessage}</p>
       <section class="repair-card" aria-label="수리 패턴">
         <span class="card-label">수리 패턴</span>
         <strong class="pattern-display" aria-label="현재 수리 패턴">${pattern.join(' ')}</strong>
