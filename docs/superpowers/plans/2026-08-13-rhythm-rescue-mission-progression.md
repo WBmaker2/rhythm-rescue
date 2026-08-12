@@ -37,6 +37,7 @@ export type MissionRunPhase = 'active' | 'complete';
 export interface MissionRunState {
   phase: MissionRunPhase;
   missionId: string;
+  config: MissionConfig;
   repairPoints: number;
   completedPoints: number;
   currentPoint: MissionState;
