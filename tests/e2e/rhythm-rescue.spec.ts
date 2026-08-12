@@ -1,10 +1,63 @@
 import { expect, test } from '@playwright/test';
 
+const buttonBySymbol: Record<string, string> = {
+  '↑': '.direction-up',
+  '→': '.direction-right',
+  '↓': '.direction-down',
+  '←': '.direction-left',
+};
+
+async function completeMission(page: import('@playwright/test').Page, repairPoints: number): Promise<void> {
+  for (let point = 1; point <= repairPoints; point += 1) {
+    await expect(page.locator('.mission-chip')).toContainText(`${point} / ${repairPoints}`);
+    const pattern = (await page.locator('.pattern-display').textContent())?.trim().split(/\s+/).filter(Boolean) ?? [];
+    expect(pattern.length).toBeGreaterThan(0);
+    for (const symbol of pattern) {
+      const selector = buttonBySymbol[symbol];
+      expect(selector).toBeDefined();
+      await page.locator(selector).click();
+    }
+  }
+  await expect(page.getByText('임무 결과')).toBeVisible();
+}
+
 test('starts and completes the tutorial rescue', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
-  await expect(page.getByText('엔진 신호 복원 중')).toBeVisible();
+  await expect(page.getByText('수리 지점 1 / 3')).toBeVisible();
   await page.getByRole('button', { name: '위 수리 신호' }).click();
+  await expect(page.getByText('수리 지점 2 / 3')).toBeVisible();
+  await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
+  await expect(page.getByText('수리 지점 3 / 3')).toBeVisible();
+  await page.getByRole('button', { name: '아래 수리 신호' }).click();
+  await expect(page.getByText('임무 결과')).toBeVisible();
+});
+
+test('runs every medium repair point before showing the result', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.mission-options .primary-button').nth(0).click();
+  await expect(page.getByText('DRONE SCAN')).toBeVisible();
+  await completeMission(page, 5);
+});
+
+test('runs every long repair point before showing the result', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.mission-options .primary-button').nth(1).click();
+  await expect(page.getByText('DRONE SCAN')).toBeVisible();
+  await expect(page.getByText('SIGNAL SHIELD')).toBeVisible();
+  await completeMission(page, 7);
+});
+
+test('keeps the mission controls reachable on a narrow viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/');
+  await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  const screen = page.locator('.mission-screen');
+  const box = await screen.boundingBox();
+  expect(box?.width).toBeLessThanOrEqual(375);
+  await page.getByRole('button', { name: '위 수리 신호' }).click();
+  await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
+  await page.getByRole('button', { name: '아래 수리 신호' }).click();
   await expect(page.getByText('임무 결과')).toBeVisible();
 });
 

@@ -360,10 +360,19 @@ strong {
 
 @media (max-width: 600px) {
   #game-ui { padding: 12px; }
-  .screen { border-radius: 20px; padding: 28px 20px; }
+  .screen { max-height: calc(100vh - 24px); overflow-y: auto; border-radius: 20px; padding: 28px 20px; }
   .mission-heading { display: block; }
   .mission-chip { display: inline-block; margin-top: 12px; }
   .accessibility-panel { top: 14px; right: 14px; }
+}
+
+@media (max-height: 760px) {
+  .screen { max-height: calc(100vh - 24px); overflow-y: auto; }
+  .mission-screen { padding-top: 32px; padding-bottom: 32px; }
+  .repair-card { margin-top: 18px; padding: 20px; }
+  .mission-footer { margin: 18px 0; }
+  .direction-pad { margin-top: 18px; }
+  .obstacle-layer { bottom: 96px; }
 }
 
 .reduced-motion *,

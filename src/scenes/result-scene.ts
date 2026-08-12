@@ -8,6 +8,8 @@ interface ResultData {
   rewardTier: 1 | 2 | 3;
   mistakes: number;
   recoveriesUsed: number;
+  bestCombo: number;
+  repairPoints: number;
 }
 
 export class ResultScene extends Phaser.Scene {
@@ -35,6 +37,7 @@ export class ResultScene extends Phaser.Scene {
         <span class="reward-stars" aria-label="별 ${data.rewardTier}개">${'★'.repeat(data.rewardTier)}</span>
         <strong>구조 부품 +${data.rewardTier}</strong>
         <span>기지 레벨 ${nextProgress.baseLevel}</span>
+        <span>수리 지점 ${data.repairPoints}개 · 최고 콤보 ${data.bestCombo}</span>
         <span>실수 ${data.mistakes}회 · 회복 ${data.recoveriesUsed}회</span>
       </div>
     `;
