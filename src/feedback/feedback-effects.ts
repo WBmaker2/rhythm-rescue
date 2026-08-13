@@ -127,7 +127,7 @@ export function createBrowserFeedbackRuntime(): FeedbackRuntime {
       }
 
       try {
-        void context.close();
+        void Promise.resolve(context.close()).catch(() => undefined);
       } catch {
         return;
       }

@@ -23,6 +23,8 @@ export interface MissionRunOptions {
   tutorialPatterns?: readonly Direction[][];
 }
 
+const MAX_RECOVERIES_PER_MISSION = 2;
+
 function patternLength(config: MissionConfig, random: () => number): number {
   const span = config.patternMax - config.patternMin + 1;
   const value = random();
@@ -44,10 +46,12 @@ function createPoint(
   config: MissionConfig,
   completedPoints: number,
   options: MissionRunOptions,
+  recoveriesLeft: number,
 ): MissionState {
   return {
     ...createMissionState(patternFor(config, completedPoints, options)),
     phase: 'input',
+    recoveriesLeft,
   };
 }
 
@@ -71,7 +75,7 @@ export function createMissionRun(
     config: { ...config },
     repairPoints: config.repairPoints,
     completedPoints: 0,
-    currentPoint: createPoint(config, 0, options),
+    currentPoint: createPoint(config, 0, options, MAX_RECOVERIES_PER_MISSION),
     totalMistakes: 0,
     totalRecoveriesUsed: 0,
     combo: 0,
@@ -121,7 +125,12 @@ export function submitRunDirection(
   return {
     ...state,
     completedPoints: nextCompletedPoints,
-    currentPoint: createPoint(state.config, nextCompletedPoints, options),
+    currentPoint: createPoint(
+      state.config,
+      nextCompletedPoints,
+      options,
+      Math.max(0, MAX_RECOVERIES_PER_MISSION - state.totalRecoveriesUsed),
+    ),
     totalMistakes: nextTotalMistakes,
     combo: nextCombo,
     bestCombo: nextBestCombo,
@@ -130,6 +139,16 @@ export function submitRunDirection(
 
 export function useRunRecovery(state: MissionRunState): MissionRunState {
   if (state.phase !== 'active') return { ...state };
+  if (state.totalRecoveriesUsed >= MAX_RECOVERIES_PER_MISSION) {
+    return {
+      ...state,
+      currentPoint: {
+        ...state.currentPoint,
+        phase: 'input',
+        recoveriesLeft: 0,
+      },
+    };
+  }
   const nextPoint = useRecovery(state.currentPoint);
   const recoveryDelta = state.currentPoint.recoveriesLeft - nextPoint.recoveriesLeft;
   return {

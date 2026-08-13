@@ -29,17 +29,30 @@ describe('mission run', () => {
     expect(state).toMatchObject({ phase: 'complete', completedPoints: 2, rewardTier: 3 });
   });
 
-  it('limits recovery per point and aggregates recovery usage', () => {
-    const options = { random: () => 0.5, tutorialPatterns: [['up'], ['right']] };
-    let state = createMissionRun({ ...getMissionConfig('short-01'), repairPoints: 2 }, options);
+  it('keeps a mission-wide recovery budget across points', () => {
+    const options = { random: () => 0.5, tutorialPatterns: [['up'], ['right'], ['down']] };
+    let state = createMissionRun({ ...getMissionConfig('short-01'), repairPoints: 3 }, options);
 
     state = submitRunDirection(state, 'right', options);
     expect(state.currentPoint.phase).toBe('recovery');
     state = useRunRecovery(state);
     expect(state.currentPoint.recoveriesLeft).toBe(1);
     state = submitRunDirection(state, 'up', options);
-
     expect(state).toMatchObject({ completedPoints: 1, totalMistakes: 1, totalRecoveriesUsed: 1 });
+
+    state = submitRunDirection(state, 'up', options);
+    expect(state.currentPoint.phase).toBe('recovery');
+    state = useRunRecovery(state);
+    state = submitRunDirection(state, 'right', options);
+
+    expect(state).toMatchObject({ completedPoints: 2, totalMistakes: 2, totalRecoveriesUsed: 2 });
+    expect(state.currentPoint.recoveriesLeft).toBe(0);
+
+    state = submitRunDirection(state, 'left', options);
+
+    expect(state.currentPoint.phase).toBe('input');
+    expect(state.currentPoint.recoveriesLeft).toBe(0);
+    expect(state.totalRecoveriesUsed).toBe(2);
   });
 
   it('generates medium patterns within configured bounds', () => {

@@ -222,6 +222,41 @@ describe('browser feedback runtime', () => {
     expect(vibrate).toHaveBeenCalledWith([40, 25, 40]);
   });
 
+  it('consumes a rejected audio context close promise during disposal', async () => {
+    const close = vi.fn(() => Promise.reject(new Error('audio close failed')));
+    const AudioContextStub = vi.fn(() => ({
+      currentTime: 10,
+      destination: { label: 'output' },
+      createOscillator: vi.fn(() => ({
+        type: 'sine',
+        frequency: { setValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+      })),
+      createGain: vi.fn(() => ({
+        gain: {
+          setValueAtTime: vi.fn(),
+          linearRampToValueAtTime: vi.fn(),
+        },
+        connect: vi.fn(),
+      })),
+      close,
+    }));
+
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { AudioContext: AudioContextStub },
+    });
+
+    const runtime = createBrowserFeedbackRuntime();
+    runtime.playSound('input-correct');
+
+    expect(() => runtime.dispose()).not.toThrow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores vibration requests when navigator.vibrate is unavailable', () => {
     Object.defineProperty(globalThis, 'window', {
       configurable: true,

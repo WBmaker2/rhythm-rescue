@@ -168,7 +168,7 @@ export class MissionScene extends Phaser.Scene {
     const displayMessage = message ?? (this.previewVisible
       ? '신호를 기억하세요. 잠시 뒤 패턴이 가려집니다.'
       : '빛나는 신호를 순서대로 눌러 엔진을 깨워요.');
-    const feedbackStatus = message ? `<p class="feedback-status" aria-live="polite">${message}</p>` : '';
+    const feedbackStatus = '<p class="feedback-status" aria-live="polite"></p>';
     screen.innerHTML = `
       <div class="mission-heading">
         <div>
@@ -213,5 +213,9 @@ export class MissionScene extends Phaser.Scene {
       screen.append(pauseOverlay);
     }
     ui.append(screen);
+    if (message) {
+      const status = screen.querySelector<HTMLElement>('.feedback-status');
+      if (status) status.textContent = message;
+    }
   }
 }

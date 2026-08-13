@@ -13,7 +13,7 @@
 - The four input actions remain `up`, `right`, `down`, and `left` and accept arrows, WASD, mouse, and touch through the existing adapter/pad.
 - `short-01` has 3 repair points, `medium-01` has 5, and `long-01` has 7.
 - `short-01` keeps a tutorial-friendly fixed sequence beginning with `['up']`; medium and long patterns are generated through the existing `PatternGenerator` with injected randomness for deterministic tests.
-- A mission may use at most two recovery signals per repair point; the final result grants stars and parts once, only after the last repair point.
+- A mission may use at most two recovery signals across the entire mission; the final result grants stars and parts once, only after the last repair point.
 - Existing result reward compatibility remains: perfect runs earn tier 3, one-or-fewer mistakes with limited recovery earns tier 2, and other completed runs earn tier 1.
 - No backend, account, network, payment, advertisement, or random reward is added.
 - Every production behavior added in this plan has a failing test observed before implementation.
@@ -94,7 +94,7 @@ Use the tutorial pattern at index `completedPoints` when supplied; otherwise cho
 - [ ] **Step 4: Add tests for recovery aggregation, generated pattern bounds, and one-time completion reward tier.**
 
 ```ts
-it('uses no more than two recoveries per point and aggregates recovery usage', () => {
+it('uses no more than two recoveries per mission and aggregates recovery usage', () => {
   const options = { random: () => 0.5, tutorialPatterns: [['up'], ['right']] };
   let state = createMissionRun({ ...getMissionConfig('short-01'), repairPoints: 2 }, options);
   state = submitRunDirection(state, 'right', options);
