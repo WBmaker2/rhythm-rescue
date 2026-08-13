@@ -119,4 +119,32 @@ describe('progress store', () => {
 
     expect(createProgressStore(storage).load()).toEqual(defaultProgress());
   });
+
+  it('rejects cosmetic progress that omits either default cosmetic', () => {
+    const invalid = {
+      ...defaultProgress(),
+      unlockedCosmeticIds: ['rescue-helmet', 'signal-hq'],
+      selectedSkinId: 'rescue-helmet',
+      selectedBaseDecorationId: 'signal-hq',
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
+
+  it('rejects a selected cosmetic that is not unlocked', () => {
+    const invalid = {
+      ...defaultProgress(),
+      selectedSkinId: 'rescue-helmet',
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
 });

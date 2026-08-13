@@ -70,12 +70,22 @@ function normalizeProgress(value: unknown): Progress | undefined {
       (id) => typeof id === 'string' && cosmeticIds.includes(id as CosmeticId),
     ) &&
     new Set(candidate.unlockedCosmeticIds).size === candidate.unlockedCosmeticIds.length;
+  const unlockedCosmeticIds = candidate.unlockedCosmeticIds as CosmeticId[] | undefined;
+  const hasDefaultCosmetics =
+    unlockedCosmeticIds?.includes('default-suit') === true &&
+    unlockedCosmeticIds.includes('default-hangar');
   const validSelections =
     typeof candidate.selectedSkinId === 'string' &&
     skinIds.includes(candidate.selectedSkinId as SkinId) &&
     typeof candidate.selectedBaseDecorationId === 'string' &&
     decorationIds.includes(candidate.selectedBaseDecorationId as BaseDecorationId);
-  if (!validCosmeticArray || !validSelections) return undefined;
+  const selectionsAreUnlocked =
+    unlockedCosmeticIds !== undefined &&
+    unlockedCosmeticIds.includes(candidate.selectedSkinId as CosmeticId) &&
+    unlockedCosmeticIds.includes(candidate.selectedBaseDecorationId as CosmeticId);
+  if (!validCosmeticArray || !hasDefaultCosmetics || !validSelections || !selectionsAreUnlocked) {
+    return undefined;
+  }
 
   return {
     stars,
@@ -85,7 +95,7 @@ function normalizeProgress(value: unknown): Progress | undefined {
     settings: { ...progressSettings },
     selectedSkinId: candidate.selectedSkinId as SkinId,
     selectedBaseDecorationId: candidate.selectedBaseDecorationId as BaseDecorationId,
-    unlockedCosmeticIds: [...(candidate.unlockedCosmeticIds as CosmeticId[])],
+    unlockedCosmeticIds: [...unlockedCosmeticIds],
   };
 }
 
