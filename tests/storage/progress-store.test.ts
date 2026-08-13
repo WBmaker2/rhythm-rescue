@@ -72,4 +72,51 @@ describe('progress store', () => {
 
     expect(createProgressStore(blocked).load()).toEqual(defaultProgress());
   });
+
+  it('migrates valid legacy progress while filling default cosmetics', () => {
+    const legacy = {
+      stars: 4,
+      parts: 6,
+      baseLevel: 3,
+      unlockedMissionIds: ['tutorial', 'repair-alpha'],
+      settings: { sound: false, vibration: true, reducedMotion: true, relaxedTiming: false },
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(legacy),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual({
+      ...legacy,
+      selectedSkinId: 'default-suit',
+      selectedBaseDecorationId: 'default-hangar',
+      unlockedCosmeticIds: ['default-suit', 'default-hangar'],
+    });
+  });
+
+  it('falls back to defaults when persisted cosmetic IDs are invalid', () => {
+    const invalid = {
+      ...defaultProgress(),
+      selectedSkinId: 'unknown-suit',
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
+
+  it('falls back to defaults when the persisted cosmetic array is invalid', () => {
+    const invalid = {
+      ...defaultProgress(),
+      unlockedCosmeticIds: ['default-suit', 'not-a-cosmetic'],
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
 });
