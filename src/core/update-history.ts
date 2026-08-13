@@ -7,18 +7,18 @@ export interface UpdateEntry {
 const UPDATE_HISTORY: readonly UpdateEntry[] = Object.freeze([
   Object.freeze({
     date: '2026-08-13',
-    title: '湲곗? ?깆옣怨?蹂몃? 袁몃?湲?',
-    summary: 'cosmetic unlocks and the update history panel are now available from the base.',
+    title: '기지 성장과 본부 꾸미기',
+    summary: '기지에서 꾸미기 아이템 해금과 업데이트 내역 패널을 사용할 수 있습니다.',
   }),
   Object.freeze({
     date: '2026-08-13',
-    title: '蹂몃? ?뚯뒪諛깆쓽 ?ㅽ궓',
-    summary: 'Added mission progression rewards and base growth milestones.',
+    title: '본부 시스템의 스킨',
+    summary: '임무 보상과 기지 성장 마일스톤을 추가했습니다.',
   }),
   Object.freeze({
     date: '2026-08-13',
-    title: '由ъ듅 援ъ“ ?쒖옉',
-    summary: 'Introduced the first playable rhythm rescue mission loop.',
+    title: '리듬 구조 시작',
+    summary: '첫 번째 리듬 구조 임무 플레이 루프를 추가했습니다.',
   }),
 ]);
 
