@@ -4,6 +4,8 @@ import { createProgressStore } from '../storage/progress-store';
 import { createAccessibilityPanel, applyAccessibilitySettings } from '../ui/accessibility-panel';
 import { createUiButton, resetGameUi } from '../ui/direction-pad';
 import { getMissionConfig } from '../core/mission-config';
+import { getUpdateHistory } from '../core/update-history';
+import type { BaseDecorationId, CosmeticId, SkinId } from '../core/progression';
 
 export interface SceneProgressData {
   progress?: Progress;
@@ -50,7 +52,7 @@ export class BaseScene extends Phaser.Scene {
     const startButton = createUiButton('첫 구조 임무 시작', () => {
       startMission('short-01');
     });
-    startButton.classList.add('start-button');
+    startButton.classList.add('start-button', 'gi-pulse');
     const missionOptions = document.createElement('div');
     missionOptions.className = 'mission-options';
     missionOptions.setAttribute('aria-label', '다른 구조 임무');
@@ -59,6 +61,70 @@ export class BaseScene extends Phaser.Scene {
       createUiButton('혼합 장애물 임무', () => startMission('long-01')),
     );
     screen.append(startButton, missionOptions);
+
+    const customization = document.createElement('section');
+    customization.className = 'base-customization';
+    customization.setAttribute('aria-label', '湲곗? 袁몃?湲?');
+    customization.innerHTML = '<h2>湲곗? 袁몃?湲?</h2>';
+    const cosmeticGrid = document.createElement('div');
+    cosmeticGrid.className = 'cosmetic-grid';
+    const cosmetics: Array<{ id: CosmeticId; label: string; requirement?: string }> = [
+      { id: 'default-suit', label: '湲곕낯 ?ㅽ궓' },
+      { id: 'rescue-helmet', label: '?щĸ ?ㅽ궓', requirement: '湲곗? ?덈꺼 3?먯꽌 ?닿툑' },
+      { id: 'default-hangar', label: '湲곕낯 寃⑸궔怨?' },
+      { id: 'signal-hq', label: '?좏샇 愿?쒖떎', requirement: '湲곗? ?덈꺼 5?먯꽌 ?닿툑' },
+    ];
+    for (const cosmetic of cosmetics) {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'cosmetic-option';
+      option.textContent = cosmetic.label;
+      const unlocked = this.progress.unlockedCosmeticIds.includes(cosmetic.id);
+      option.disabled = !unlocked;
+      option.setAttribute('aria-pressed', String(
+        cosmetic.id === this.progress.selectedSkinId || cosmetic.id === this.progress.selectedBaseDecorationId,
+      ));
+      option.addEventListener('click', () => {
+        if (!this.progress.unlockedCosmeticIds.includes(cosmetic.id)) return;
+        this.progress = cosmetic.id === 'default-suit' || cosmetic.id === 'rescue-helmet'
+          ? { ...this.progress, selectedSkinId: cosmetic.id as SkinId }
+          : { ...this.progress, selectedBaseDecorationId: cosmetic.id as BaseDecorationId };
+        createProgressStore(window.localStorage).save(this.progress);
+        this.scene.restart({ progress: this.progress });
+      });
+      cosmeticGrid.append(option);
+      if (cosmetic.requirement && !unlocked) {
+        const requirement = document.createElement('span');
+        requirement.className = 'cosmetic-requirement';
+        requirement.textContent = cosmetic.requirement;
+        cosmeticGrid.append(requirement);
+      }
+    }
+    customization.append(cosmeticGrid);
+
+    let historyOpen = false;
+    const historyButton = createUiButton('?낅뜲?댄듃 ?댁뿭', () => {
+      historyOpen = !historyOpen;
+      historyButton.setAttribute('aria-expanded', String(historyOpen));
+      historyPanel.hidden = !historyOpen;
+    });
+    historyButton.classList.add('update-history-button');
+    historyButton.setAttribute('aria-expanded', 'false');
+    const historyPanel = document.createElement('section');
+    historyPanel.className = 'update-history-panel';
+    historyPanel.setAttribute('aria-label', '?낅뜲?댄듃 ?댁뿭');
+    historyPanel.hidden = true;
+    const historyList = document.createElement('ul');
+    for (const entry of getUpdateHistory()) {
+      const item = document.createElement('li');
+      const time = document.createElement('time');
+      time.dateTime = entry.date;
+      time.textContent = entry.date;
+      item.append(time, document.createTextNode(` ${entry.title}: ${entry.summary}`));
+      historyList.append(item);
+    }
+    historyPanel.append(historyList);
+    screen.append(customization, historyButton, historyPanel);
     ui.append(screen);
   }
 }

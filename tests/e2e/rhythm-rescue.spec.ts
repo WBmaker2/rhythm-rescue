@@ -140,3 +140,33 @@ test('reduced motion disables obstacle animation', async ({ page }) => {
     page.locator('.obstacle-layer .obstacle-drone').evaluate((element) => getComputedStyle(element).animationName),
   ).toBe('none');
 });
+
+test('shows locked cosmetics and a closed update history panel', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '?щĸ ?ㅽ궓' })).toBeDisabled();
+  await expect(page.getByText('湲곗? ?덈꺼 3?먯꽌 ?닿툑')).toBeVisible();
+  await expect(page.getByRole('button', { name: '?낅뜲?댄듃 ?댁뿭' })).toBeVisible();
+  await expect(page.locator('.update-history-panel')).toBeHidden();
+});
+
+test('opens dated updates and highlights the required mission button', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.start-button')).toHaveClass(/gi-pulse/);
+  await page.getByRole('button', { name: '?낅뜲?댄듃 ?댁뿭' }).click();
+  await expect(page.locator('.update-history-panel')).toBeVisible();
+  await expect(page.getByText('2026-08-13').first()).toBeVisible();
+});
+
+test('selects an unlocked cosmetic and persists the choice', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('rhythm-rescue-progress-v1', JSON.stringify({
+    stars: 6, parts: 6, baseLevel: 3, unlockedMissionIds: ['tutorial'],
+    settings: { sound: true, vibration: true, reducedMotion: false, relaxedTiming: false },
+    selectedSkinId: 'default-suit', selectedBaseDecorationId: 'default-hangar',
+    unlockedCosmeticIds: ['default-suit', 'default-hangar', 'rescue-helmet'],
+  })));
+  await page.reload();
+  await page.getByRole('button', { name: '?щĸ ?ㅽ궓' }).click();
+  await expect(page.getByRole('button', { name: '?щĸ ?ㅽ궓' })).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('rhythm-rescue-progress-v1') ?? '{}').selectedSkinId)).toBe('rescue-helmet');
+});
