@@ -5,7 +5,7 @@ import { createAccessibilityPanel, applyAccessibilitySettings } from '../ui/acce
 import { createUiButton, resetGameUi } from '../ui/direction-pad';
 import { getMissionConfig } from '../core/mission-config';
 import { getUpdateHistory } from '../core/update-history';
-import type { BaseDecorationId, CosmeticId, SkinId } from '../core/progression';
+import { COSMETIC_LABELS, type BaseDecorationId, type CosmeticId, type SkinId } from '../core/progression';
 
 export interface SceneProgressData {
   progress?: Progress;
@@ -26,6 +26,9 @@ export class BaseScene extends Phaser.Scene {
     const ui = resetGameUi();
     const screen = document.createElement('main');
     screen.className = 'screen base-screen';
+    screen.dataset.skin = this.progress.selectedSkinId;
+    screen.dataset.decoration = this.progress.selectedBaseDecorationId;
+    screen.classList.add(`skin-${this.progress.selectedSkinId}`, `decoration-${this.progress.selectedBaseDecorationId}`);
     const startMission = (missionId: string): void => {
       this.scene.start('MissionScene', {
         progress: this.progress,
@@ -75,6 +78,8 @@ export class BaseScene extends Phaser.Scene {
       { id: 'signal-hq', label: '신호 관제실', requirement: '기지 레벨 5에서 해금' },
     ];
     for (const cosmetic of cosmetics) {
+      const card = document.createElement('article');
+      card.className = 'cosmetic-card';
       const option = document.createElement('button');
       option.type = 'button';
       option.className = 'cosmetic-option';
@@ -92,13 +97,16 @@ export class BaseScene extends Phaser.Scene {
         createProgressStore(window.localStorage).save(this.progress);
         this.scene.restart({ progress: this.progress });
       });
-      cosmeticGrid.append(option);
+      card.append(option);
       if (cosmetic.requirement && !unlocked) {
         const requirement = document.createElement('span');
         requirement.className = 'cosmetic-requirement';
+        requirement.id = `cosmetic-requirement-${cosmetic.id}`;
         requirement.textContent = cosmetic.requirement;
-        cosmeticGrid.append(requirement);
+        option.setAttribute('aria-describedby', requirement.id);
+        card.append(requirement);
       }
+      cosmeticGrid.append(card);
     }
     customization.append(cosmeticGrid);
 

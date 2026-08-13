@@ -48,6 +48,15 @@ body {
   text-align: center;
 }
 
+.base-screen.skin-rescue-helmet {
+  background: linear-gradient(145deg, rgba(28, 66, 100, 0.98), rgba(10, 22, 48, 0.97));
+}
+
+.base-screen.decoration-signal-hq {
+  border-color: rgba(255, 209, 102, 0.5);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34), inset 0 1px rgba(255, 209, 102, 0.2);
+}
+
 .base-screen h1,
 .result-screen h1,
 .mission-screen h1 {
@@ -225,6 +234,18 @@ strong {
   margin: 0;
 }
 
+.selected-cosmetic-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 7px 11px;
+  border: 1px solid rgba(126, 231, 255, 0.26);
+  border-radius: 999px;
+  color: #9fdcf2;
+  background: rgba(18, 42, 82, 0.7);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .repair-card,
 .reward-card {
   display: grid;
@@ -388,6 +409,12 @@ strong {
   gap: 10px;
 }
 
+.cosmetic-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
 .cosmetic-option,
 .update-history-button {
   border: 1px solid rgba(126, 231, 255, 0.3);
@@ -419,8 +446,10 @@ strong {
 }
 
 .cosmetic-requirement {
+  display: block;
   color: #9ab2d7;
   font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .update-history-button {

@@ -1,5 +1,6 @@
 import {
   defaultProgress,
+  baseLevelFor,
   type BaseDecorationId,
   type CosmeticId,
   type Progress,
@@ -39,6 +40,8 @@ function normalizeProgress(value: unknown): Progress | undefined {
   const unlockedMissionIds = candidate.unlockedMissionIds as string[];
   const progressSettings = settings as Progress['settings'];
 
+  if (baseLevel !== baseLevelFor(parts)) return undefined;
+
   const hasCosmetics =
     candidate.selectedSkinId !== undefined ||
     candidate.selectedBaseDecorationId !== undefined ||
@@ -63,6 +66,10 @@ function normalizeProgress(value: unknown): Progress | undefined {
     'rescue-helmet',
     'signal-hq',
   ];
+  const minimumBaseLevels: Readonly<Partial<Record<CosmeticId, number>>> = {
+    'rescue-helmet': 3,
+    'signal-hq': 5,
+  };
   const validCosmeticArray =
     Array.isArray(candidate.unlockedCosmeticIds) &&
     candidate.unlockedCosmeticIds.length > 0 &&
@@ -74,6 +81,8 @@ function normalizeProgress(value: unknown): Progress | undefined {
   const hasDefaultCosmetics =
     unlockedCosmeticIds?.includes('default-suit') === true &&
     unlockedCosmeticIds.includes('default-hangar');
+  const cosmeticsMeetLevelRequirements =
+    unlockedCosmeticIds?.every((id) => (minimumBaseLevels[id] ?? 1) <= baseLevel) === true;
   const validSelections =
     typeof candidate.selectedSkinId === 'string' &&
     skinIds.includes(candidate.selectedSkinId as SkinId) &&
@@ -83,7 +92,13 @@ function normalizeProgress(value: unknown): Progress | undefined {
     unlockedCosmeticIds !== undefined &&
     unlockedCosmeticIds.includes(candidate.selectedSkinId as CosmeticId) &&
     unlockedCosmeticIds.includes(candidate.selectedBaseDecorationId as CosmeticId);
-  if (!validCosmeticArray || !hasDefaultCosmetics || !validSelections || !selectionsAreUnlocked) {
+  if (
+    !validCosmeticArray ||
+    !hasDefaultCosmetics ||
+    !cosmeticsMeetLevelRequirements ||
+    !validSelections ||
+    !selectionsAreUnlocked
+  ) {
     return undefined;
   }
 

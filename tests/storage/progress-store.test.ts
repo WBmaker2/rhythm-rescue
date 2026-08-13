@@ -20,7 +20,7 @@ describe('progress store', () => {
   it('round-trips progress through the provided storage', () => {
     const storage = memoryStorage();
     const store = createProgressStore(storage);
-    const progress = { ...defaultProgress(), stars: 4, parts: 6 };
+    const progress = { ...defaultProgress(), stars: 4, parts: 6, baseLevel: 3 as const };
 
     expect(store.save(progress)).toBe(true);
     expect(store.load()).toEqual(progress);
@@ -139,6 +139,37 @@ describe('progress store', () => {
     const invalid = {
       ...defaultProgress(),
       selectedSkinId: 'rescue-helmet',
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
+
+  it('rejects cosmetics that require a higher base level than the saved progress', () => {
+    const invalid = {
+      ...defaultProgress(),
+      stars: 6,
+      parts: 2,
+      baseLevel: 1,
+      selectedSkinId: 'rescue-helmet',
+      unlockedCosmeticIds: ['default-suit', 'default-hangar', 'rescue-helmet'],
+    };
+    const storage = {
+      ...memoryStorage(),
+      getItem: () => JSON.stringify(invalid),
+    } as Storage;
+
+    expect(createProgressStore(storage).load()).toEqual(defaultProgress());
+  });
+
+  it('rejects a saved base level that does not match its repair parts', () => {
+    const invalid = {
+      ...defaultProgress(),
+      parts: 6,
+      baseLevel: 1,
     };
     const storage = {
       ...memoryStorage(),

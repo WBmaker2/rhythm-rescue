@@ -198,3 +198,35 @@ test('selects an unlocked cosmetic and persists the choice', async ({ page }) =>
   await expect(page.getByRole('button', { name: '헬멧 스킨' })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('rhythm-rescue-progress-v1') ?? '{}').selectedSkinId)).toBe('rescue-helmet');
 });
+
+test('applies selected cosmetics to the base theme and mission HUD badge', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('rhythm-rescue-progress-v1', JSON.stringify({
+    stars: 12, parts: 12, baseLevel: 5, unlockedMissionIds: ['tutorial'],
+    settings: { sound: true, vibration: true, reducedMotion: false, relaxedTiming: false },
+    selectedSkinId: 'default-suit', selectedBaseDecorationId: 'default-hangar',
+    unlockedCosmeticIds: ['default-suit', 'default-hangar', 'rescue-helmet', 'signal-hq'],
+  })));
+  await page.reload();
+
+  await page.getByRole('button', { name: '헬멧 스킨' }).click();
+  await page.getByRole('button', { name: '신호 관제실' }).click();
+  await expect(page.locator('.base-screen')).toHaveAttribute('data-skin', 'rescue-helmet');
+  await expect(page.locator('.base-screen')).toHaveAttribute('data-decoration', 'signal-hq');
+
+  await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  await expect(page.locator('.selected-cosmetic-badge')).toContainText('헬멧 스킨');
+  await expect(page.locator('.selected-cosmetic-badge')).toContainText('신호 관제실');
+});
+
+test('associates each locked cosmetic button with its requirement card text', async ({ page }) => {
+  await page.goto('/');
+  const lockedButton = page.getByRole('button', { name: '헬멧 스킨' });
+  await expect(lockedButton).toBeDisabled();
+  const descriptionId = await lockedButton.getAttribute('aria-describedby');
+  expect(descriptionId).toBeTruthy();
+  await expect(page.locator(`#${descriptionId}`)).toContainText('기지 레벨 3에서 해금');
+  await expect(page.locator('.cosmetic-card')).toHaveCount(4);
+  await page.setViewportSize({ width: 375, height: 667 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+});

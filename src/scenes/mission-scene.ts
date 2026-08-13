@@ -4,6 +4,7 @@ import type { Direction } from '../core/types';
 import { directionFromKeyboard } from '../input/input-adapter';
 import { createDirectionPad, createUiButton, resetGameUi } from '../ui/direction-pad';
 import type { Progress } from '../core/progression';
+import { COSMETIC_LABELS } from '../core/progression';
 import { getMissionConfig } from '../core/mission-config';
 import type { MissionConfig } from '../core/types';
 import { createFeedbackEffects, type FeedbackEffects } from '../feedback/feedback-effects';
@@ -169,6 +170,7 @@ export class MissionScene extends Phaser.Scene {
       ? '신호를 기억하세요. 잠시 뒤 패턴이 가려집니다.'
       : '빛나는 신호를 순서대로 눌러 엔진을 깨워요.');
     const feedbackStatus = '<p class="feedback-status" aria-live="polite"></p>';
+    const selectedCosmeticBadge = `선택 꾸미기: ${COSMETIC_LABELS[this.progress.selectedSkinId]} · ${COSMETIC_LABELS[this.progress.selectedBaseDecorationId]}`;
     screen.innerHTML = `
       <div class="mission-heading">
         <div>
@@ -177,6 +179,7 @@ export class MissionScene extends Phaser.Scene {
         </div>
         <span class="mission-chip">수리 지점 ${this.run.completedPoints + 1} / ${this.run.repairPoints}</span>
       </div>
+      <span class="selected-cosmetic-badge" aria-label="선택한 꾸미기">${selectedCosmeticBadge}</span>
       <p class="mission-message">${displayMessage}</p>
       ${feedbackStatus}
       <section class="repair-card" aria-label="수리 패턴">

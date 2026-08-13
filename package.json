@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/generate-update-history.mjs",
     "build": "tsc -b && vite build",
+    "prebuild": "node scripts/generate-update-history.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },

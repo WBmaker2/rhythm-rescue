@@ -67,7 +67,7 @@ it('does not duplicate cosmetic unlocks when rewards cross the same level twice'
 
 - [ ] **Step 2: Run the progression tests and observe the expected RED failure**
 
-Run: `pnpm vitest run tests/core/progression.test.ts`  
+Run: `pnpm vitest run tests/core/progression.test.ts`
 Expected: FAIL because the new `Progress` fields and unlock logic do not exist.
 
 - [ ] **Step 3: Implement the minimal progression model and unlock calculation**
@@ -88,7 +88,7 @@ Add a test that persists a valid old-format object with no cosmetic fields and v
 
 - [ ] **Step 5: Run the storage tests and observe RED**
 
-Run: `pnpm vitest run tests/storage/progress-store.test.ts`  
+Run: `pnpm vitest run tests/storage/progress-store.test.ts`
 Expected: FAIL because the current validator treats missing cosmetic fields as invalid and has no migration path.
 
 - [ ] **Step 6: Implement safe progress normalization**
@@ -108,7 +108,7 @@ The current entry date is `2026-08-13`, titled `기지 성장과 본부 꾸미�
 
 - [ ] **Step 8: Run the focused green suite and commit**
 
-Run: `pnpm vitest run tests/core/progression.test.ts tests/storage/progress-store.test.ts tests/core/update-history.test.ts`  
+Run: `pnpm vitest run tests/core/progression.test.ts tests/storage/progress-store.test.ts tests/core/update-history.test.ts`
 Then commit: `git add src/core/progression.ts src/storage/progress-store.ts src/core/update-history.ts tests/core/progression.test.ts tests/storage/progress-store.test.ts tests/core/update-history.test.ts && git commit -m "feat: add cosmetic progression data"`
 
 ### Task 2: Base customization and update-history UI
@@ -160,7 +160,7 @@ test('selects an unlocked cosmetic and persists the choice', async ({ page }) =>
 
 - [ ] **Step 2: Run the focused E2E tests and observe RED**
 
-Run: `pnpm test:e2e tests/e2e/rhythm-rescue.spec.ts`  
+Run: `pnpm test:e2e tests/e2e/rhythm-rescue.spec.ts`
 Expected: FAIL because the cosmetic controls, update panel, and `gi-pulse` class do not exist.
 
 - [ ] **Step 3: Implement BaseScene cosmetic controls**
@@ -210,7 +210,7 @@ Add tests that set `375x667`, open the base screen, assert the cosmetic grid fit
 
 - [ ] **Step 2: Run the checks and observe RED**
 
-Run: `pnpm test:e2e tests/e2e/rhythm-rescue.spec.ts`  
+Run: `pnpm test:e2e tests/e2e/rhythm-rescue.spec.ts`
 Expected: at least the new viewport, reduced-motion, and keyboard assertions fail before the required responsive/accessibility adjustments are complete.
 
 - [ ] **Step 3: Implement only the required responsive/accessibility adjustments**

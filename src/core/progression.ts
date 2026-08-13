@@ -9,6 +9,13 @@ export type CosmeticId = 'default-suit' | 'default-hangar' | 'rescue-helmet' | '
 export type SkinId = 'default-suit' | 'rescue-helmet';
 export type BaseDecorationId = 'default-hangar' | 'signal-hq';
 
+export const COSMETIC_LABELS: Readonly<Record<CosmeticId, string>> = {
+  'default-suit': '기본 스킨',
+  'default-hangar': '기본 격납고',
+  'rescue-helmet': '헬멧 스킨',
+  'signal-hq': '신호 관제실',
+};
+
 export interface Progress {
   stars: number;
   parts: number;
@@ -38,7 +45,7 @@ export function defaultProgress(): Progress {
   };
 }
 
-function baseLevelFor(parts: number): 1 | 2 | 3 | 4 | 5 {
+export function baseLevelFor(parts: number): 1 | 2 | 3 | 4 | 5 {
   return Math.min(5, 1 + Math.floor(parts / 3)) as 1 | 2 | 3 | 4 | 5;
 }
 
