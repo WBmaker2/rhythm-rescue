@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS ? '/rhythm-rescue/' : '/',
   build: {
     rollupOptions: {
       input: 'index.html',

@@ -1,5 +1,7 @@
 node_modules/
+.pnpm-store/
 dist/
 .superpowers/
 playwright-report/
 test-results/
+debug.log
