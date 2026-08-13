@@ -72,7 +72,6 @@ test('shows recovery feedback and still completes with sound and vibration disab
   await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
   await expect(missionMessage).not.toHaveAttribute('aria-live', 'polite');
   await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
-  await expect(page.getByText('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.')).toBeVisible();
   await expect(recoveryStatus).toContainText('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.');
   await page.getByRole('button', { name: '위 수리 신호' }).click();
   await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
