@@ -64,15 +64,15 @@ export class BaseScene extends Phaser.Scene {
 
     const customization = document.createElement('section');
     customization.className = 'base-customization';
-    customization.setAttribute('aria-label', '湲곗? 袁몃?湲?');
-    customization.innerHTML = '<h2>湲곗? 袁몃?湲?</h2>';
+    customization.setAttribute('aria-label', '기지 꾸미기');
+    customization.innerHTML = '<h2>기지 꾸미기</h2>';
     const cosmeticGrid = document.createElement('div');
     cosmeticGrid.className = 'cosmetic-grid';
     const cosmetics: Array<{ id: CosmeticId; label: string; requirement?: string }> = [
-      { id: 'default-suit', label: '湲곕낯 ?ㅽ궓' },
-      { id: 'rescue-helmet', label: '?щĸ ?ㅽ궓', requirement: '湲곗? ?덈꺼 3?먯꽌 ?닿툑' },
-      { id: 'default-hangar', label: '湲곕낯 寃⑸궔怨?' },
-      { id: 'signal-hq', label: '?좏샇 愿?쒖떎', requirement: '湲곗? ?덈꺼 5?먯꽌 ?닿툑' },
+      { id: 'default-suit', label: '기본 스킨' },
+      { id: 'rescue-helmet', label: '헬멧 스킨', requirement: '기지 레벨 3에서 해금' },
+      { id: 'default-hangar', label: '기본 격납고' },
+      { id: 'signal-hq', label: '신호 관제실', requirement: '기지 레벨 5에서 해금' },
     ];
     for (const cosmetic of cosmetics) {
       const option = document.createElement('button');
@@ -103,16 +103,17 @@ export class BaseScene extends Phaser.Scene {
     customization.append(cosmeticGrid);
 
     let historyOpen = false;
-    const historyButton = createUiButton('?낅뜲?댄듃 ?댁뿭', () => {
+    const historyButton = createUiButton('업데이트 내역', () => {
       historyOpen = !historyOpen;
       historyButton.setAttribute('aria-expanded', String(historyOpen));
       historyPanel.hidden = !historyOpen;
+      if (!historyOpen) historyButton.focus();
     });
     historyButton.classList.add('update-history-button');
     historyButton.setAttribute('aria-expanded', 'false');
     const historyPanel = document.createElement('section');
     historyPanel.className = 'update-history-panel';
-    historyPanel.setAttribute('aria-label', '?낅뜲?댄듃 ?댁뿭');
+    historyPanel.setAttribute('aria-label', '업데이트 내역');
     historyPanel.hidden = true;
     const historyList = document.createElement('ul');
     for (const entry of getUpdateHistory()) {

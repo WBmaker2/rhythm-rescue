@@ -141,18 +141,46 @@ test('reduced motion disables obstacle animation', async ({ page }) => {
   ).toBe('none');
 });
 
+test('keeps the base screen and cosmetic grid inside a narrow viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/');
+  const screen = page.locator('.base-screen');
+  const grid = page.locator('.cosmetic-grid');
+  await expect(screen).toBeVisible();
+  await expect(grid).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await expect.poll(async () => grid.evaluate((element) => element.getBoundingClientRect().right)).toBeLessThanOrEqual(375);
+});
+
+test('disables the base start pulse when reduced motion is enabled', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '접근성 설정' }).click();
+  await page.getByLabel('화면 흔들림 줄이기').check();
+  await expect.poll(async () => page.locator('.start-button').evaluate((element) => getComputedStyle(element).animationName)).toBe('none');
+});
+
+test('opens update history with keyboard activation', async ({ page }) => {
+  await page.goto('/');
+  const updateButton = page.getByRole('button', { name: '업데이트 내역' });
+  await updateButton.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.update-history-panel')).toBeVisible();
+  await expect(page.locator('.update-history-panel time').first()).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
+  await expect(page.locator('.update-history-panel')).toContainText('2026-08-13');
+});
+
 test('shows locked cosmetics and a closed update history panel', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: '?щĸ ?ㅽ궓' })).toBeDisabled();
-  await expect(page.getByText('湲곗? ?덈꺼 3?먯꽌 ?닿툑')).toBeVisible();
-  await expect(page.getByRole('button', { name: '?낅뜲?댄듃 ?댁뿭' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '헬멧 스킨' })).toBeDisabled();
+  await expect(page.getByText('기지 레벨 3에서 해금')).toBeVisible();
+  await expect(page.getByRole('button', { name: '업데이트 내역' })).toBeVisible();
   await expect(page.locator('.update-history-panel')).toBeHidden();
 });
 
 test('opens dated updates and highlights the required mission button', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.start-button')).toHaveClass(/gi-pulse/);
-  await page.getByRole('button', { name: '?낅뜲?댄듃 ?댁뿭' }).click();
+  await page.getByRole('button', { name: '업데이트 내역' }).click();
   await expect(page.locator('.update-history-panel')).toBeVisible();
   await expect(page.getByText('2026-08-13').first()).toBeVisible();
 });
@@ -166,7 +194,7 @@ test('selects an unlocked cosmetic and persists the choice', async ({ page }) =>
     unlockedCosmeticIds: ['default-suit', 'default-hangar', 'rescue-helmet'],
   })));
   await page.reload();
-  await page.getByRole('button', { name: '?щĸ ?ㅽ궓' }).click();
-  await expect(page.getByRole('button', { name: '?щĸ ?ㅽ궓' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: '헬멧 스킨' }).click();
+  await expect(page.getByRole('button', { name: '헬멧 스킨' })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('rhythm-rescue-progress-v1') ?? '{}').selectedSkinId)).toBe('rescue-helmet');
 });
