@@ -31,7 +31,7 @@ export class ResultScene extends Phaser.Scene {
     screen.innerHTML = `
       <p class="eyebrow">구조 성공</p>
       <h1>임무 결과</h1>
-      <p class="result-copy">엔진이 다시 힘차게 뛰기 시작했어요!</p>
+      <p class="result-copy" aria-live="polite">엔진이 다시 힘차게 뛰기 시작했어요!</p>
       <p class="result-reason">${reason}</p>
       <div class="reward-card">
         <span class="reward-stars" aria-label="별 ${data.rewardTier}개">${'★'.repeat(data.rewardTier)}</span>

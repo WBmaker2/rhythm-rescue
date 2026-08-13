@@ -63,17 +63,22 @@ test('keeps the mission controls reachable on a narrow viewport', async ({ page 
 
 test('shows recovery feedback and still completes with sound and vibration disabled', async ({ page }) => {
   await page.goto('/');
+  const missionMessage = page.locator('.mission-message');
+  const recoveryStatus = page.locator('.feedback-status[aria-live="polite"]');
+  const resultCopy = page.locator('.result-copy[aria-live="polite"]');
   await page.getByRole('button', { name: '접근성 설정' }).click();
   await page.getByLabel('수리 소리 사용').uncheck();
   await page.getByLabel('진동 사용').uncheck();
   await page.getByRole('button', { name: '첫 구조 임무 시작' }).click();
+  await expect(missionMessage).not.toHaveAttribute('aria-live', 'polite');
   await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
   await expect(page.getByText('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.')).toBeVisible();
-  await expect(page.locator('.mission-message[aria-live="polite"]')).toContainText('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.');
+  await expect(recoveryStatus).toContainText('신호가 흐트러졌어요. 한 번 더 천천히 기억해요.');
   await page.getByRole('button', { name: '위 수리 신호' }).click();
   await page.getByRole('button', { name: '오른쪽 수리 신호' }).click();
   await page.getByRole('button', { name: '아래 수리 신호' }).click();
   await expect(page.getByText('임무 결과')).toBeVisible();
+  await expect(resultCopy).toBeVisible();
 });
 
 test('pauses the mission and can reduce motion', async ({ page }) => {

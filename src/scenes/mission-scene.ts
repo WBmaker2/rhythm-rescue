@@ -168,6 +168,7 @@ export class MissionScene extends Phaser.Scene {
     const displayMessage = message ?? (this.previewVisible
       ? '신호를 기억하세요. 잠시 뒤 패턴이 가려집니다.'
       : '빛나는 신호를 순서대로 눌러 엔진을 깨워요.');
+    const feedbackStatus = message ? `<p class="feedback-status" aria-live="polite">${message}</p>` : '';
     screen.innerHTML = `
       <div class="mission-heading">
         <div>
@@ -176,7 +177,8 @@ export class MissionScene extends Phaser.Scene {
         </div>
         <span class="mission-chip">수리 지점 ${this.run.completedPoints + 1} / ${this.run.repairPoints}</span>
       </div>
-      <p class="mission-message" aria-live="polite">${displayMessage}</p>
+      <p class="mission-message">${displayMessage}</p>
+      ${feedbackStatus}
       <section class="repair-card" aria-label="수리 패턴">
         <span class="card-label">수리 패턴</span>
         <strong class="pattern-display" aria-label="현재 수리 패턴">${pattern.join(' ')}</strong>
