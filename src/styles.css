@@ -70,19 +70,20 @@ h2 { margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.5rem); }
 .status-strip { right: 24px; display: flex; align-items: center; gap: 15px; border-radius: 14px 14px 3px 14px; color: var(--muted); font-size: .82rem; }
 .status-strip strong { color: var(--gold); font-size: 1.2rem; }
 .hud-icon-button { width: 38px; height: 38px; border: 1px solid rgba(66, 232, 255, .25); border-radius: 10px; color: var(--cyan); background: transparent; }
-.pattern-panel { position: absolute; top: 19%; left: 50%; width: min(560px, calc(100vw - 48px)); transform: translateX(-50%); padding: 20px 24px; border: 1px solid rgba(66, 232, 255, .22); border-radius: 18px; background: rgba(4, 17, 31, .48); text-align: center; box-shadow: 0 0 44px rgba(66, 232, 255, .08); backdrop-filter: blur(7px); }
+.pattern-panel { position: absolute; top: 132px; left: 24px; width: min(340px, calc(100vw - 48px)); padding: 14px 16px; border: 1px solid rgba(66, 232, 255, .22); border-radius: 14px; background: rgba(4, 17, 31, .72); text-align: center; box-shadow: 0 0 30px rgba(66, 232, 255, .08); backdrop-filter: blur(7px); }
 .pattern-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .pattern-phase { color: var(--lime); font-size: .78rem; font-weight: 900; letter-spacing: .1em; }
-.pattern-display { display: flex; justify-content: center; gap: clamp(8px, 2vw, 16px); min-height: 72px; margin: 18px 0 12px; }
-.pattern-token { display: grid; place-items: center; width: 48px; height: 54px; border: 1px solid rgba(66, 232, 255, .26); border-radius: 12px; color: var(--cyan); background: rgba(9, 38, 63, .72); font-size: 1.6rem; box-shadow: inset 0 0 18px rgba(66, 232, 255, .08); }
+.pattern-display { display: flex; justify-content: center; gap: 4px; min-height: 34px; margin: 10px 0 8px; }
+.pattern-token { display: grid; place-items: center; width: 22px; height: 30px; border: 1px solid rgba(66, 232, 255, .26); border-radius: 7px; color: var(--cyan); background: rgba(9, 38, 63, .72); font-size: 1rem; box-shadow: inset 0 0 18px rgba(66, 232, 255, .08); }
 .pattern-token-complete { border-color: rgba(156, 255, 87, .45); color: var(--lime); background: rgba(74, 127, 52, .22); }
 .pattern-token-current { border-color: var(--gold); color: var(--gold); transform: translateY(-4px); }
 .timer-track { height: 5px; overflow: hidden; border-radius: 99px; background: rgba(145, 171, 196, .2); }
 .timer-fill { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--lime), var(--cyan)); transition: width 120ms linear; }
 .progress-copy { display: block; margin-top: 10px; color: var(--muted); font-size: .8rem; }
-.mission-status { position: absolute; right: 24px; bottom: 180px; left: 24px; margin: 0; color: #d3e8f7; text-align: center; text-shadow: 0 2px 12px #061426; }
+.mission-status { margin: 8px 0 0; color: #d3e8f7; font-size: .78rem; text-align: center; text-shadow: 0 2px 12px #061426; }
 .direction-pad { position: absolute; bottom: 28px; left: 50%; display: grid; grid-template: repeat(3, 64px) / repeat(3, 64px); grid-template-areas: ". up ." "left . right" ". down ."; gap: 8px; transform: translateX(-50%); }
 .direction-button { width: 64px; height: 64px; border: 1px solid rgba(66, 232, 255, .32); border-radius: 18px; color: var(--cyan); background: rgba(7, 27, 48, .9); box-shadow: inset 0 0 18px rgba(66, 232, 255, .1), 0 10px 20px rgba(0, 0, 0, .18); font-size: 1.45rem; }
+.direction-button:disabled { cursor: wait; opacity: .42; filter: saturate(.35); transform: none; }
 .direction-up { grid-area: up; } .direction-right { grid-area: right; } .direction-down { grid-area: down; } .direction-left { grid-area: left; }
 
 .update-history-panel, .pause-overlay { position: absolute; z-index: 5; border: 1px solid rgba(66, 232, 255, .28); border-radius: 18px; background: rgba(5, 18, 34, .96); box-shadow: 0 24px 60px rgba(0, 0, 0, .44); backdrop-filter: blur(18px); }
@@ -114,11 +115,11 @@ h2 { margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.5rem); }
   .console-stats { gap: 12px; }
   .mission-screen { padding: 16px; }
   .objective-chip { top: 16px; left: 16px; min-width: 0; padding: 10px 12px; }
-  .status-strip { top: 16px; right: 16px; gap: 8px; padding: 10px 12px; }
-  .status-strip span:not(:last-of-type) { display: none; }
-  .pattern-panel { top: 24%; width: calc(100vw - 32px); padding: 16px 12px; }
-  .pattern-token { width: 38px; height: 48px; font-size: 1.2rem; }
-  .mission-status { bottom: 146px; }
+  .status-strip { top: 16px; right: 16px; width: 48px; justify-content: center; padding: 8px; }
+  .status-strip span { display: none; }
+  .objective-chip { right: 76px; min-width: 0; }
+  .pattern-panel { top: 116px; left: 12px; width: min(300px, calc(100vw - 24px)); padding: 11px 12px; }
+  .pattern-token { width: 18px; height: 26px; border-radius: 6px; font-size: .85rem; }
   .direction-pad { bottom: 18px; grid-template: repeat(3, 58px) / repeat(3, 58px); }
   .direction-button { width: 58px; height: 58px; }
   .pause-overlay { inset: 10%; }

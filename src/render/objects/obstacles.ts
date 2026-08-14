@@ -1,16 +1,17 @@
 import * as THREE from 'three';
-import type { ObstacleType } from '../../core/types';
+import type { Direction, ObstacleType } from '../../core/types';
 import { RESCUE_PALETTE, createGlowMaterial, createStandardMaterial } from '../materials/material-factory';
 
 export interface ObstaclesView {
   root: THREE.Group;
   update(elapsedMs: number): void;
+  reactTo(direction: Direction): void;
 }
 
 export function createObstacles(type: ObstacleType): ObstaclesView {
   const root = new THREE.Group();
   root.name = 'mission-obstacles';
-  if (type === 'none') return { root, update: () => undefined };
+  if (type === 'none') return { root, update: () => undefined, reactTo: () => undefined };
 
   const drone = new THREE.Group();
   const droneBody = new THREE.Mesh(
@@ -27,6 +28,8 @@ export function createObstacles(type: ObstacleType): ObstaclesView {
   drone.position.set(-3.6, 1.65, -1.2);
   drone.castShadow = true;
   root.add(drone);
+  let reactionUntil = 0;
+  root.userData.lastSignal = null;
 
   if (type === 'mixed') {
     const shield = new THREE.Mesh(
@@ -45,6 +48,12 @@ export function createObstacles(type: ObstacleType): ObstaclesView {
       drone.position.z = -1.2 + Math.cos(elapsedMs * 0.001) * 1.8;
       drone.rotation.y += 0.02;
       droneRing.rotation.z += 0.035;
+      const reaction = Math.max(0, Math.min(1, (reactionUntil - performance.now()) / 280));
+      droneRing.scale.setScalar(1 + reaction * 0.35);
+    },
+    reactTo(direction) {
+      root.userData.lastSignal = direction;
+      reactionUntil = performance.now() + 280;
     },
   };
 }

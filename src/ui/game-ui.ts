@@ -9,7 +9,7 @@ export interface GameUi {
   showBase(options: BaseMenuOptions): void;
   showMission(options: MissionHudView): void;
   updateMissionTimer(timeRemainingMs: number, timeLimitMs: number): void;
-  updateMissionPattern(pattern: readonly Direction[], cursor: number, previewVisible: boolean): void;
+  updateMissionPattern(pattern: readonly Direction[], cursor: number, previewVisible: boolean, previewIndex: number): void;
   showResult(options: ResultMenuOptions): void;
   showPause(onResume: () => void): void;
   clear(): void;
@@ -38,10 +38,14 @@ export function createGameUi(root: HTMLElement): GameUi {
       const timerFill = root.querySelector<HTMLElement>('.timer-fill');
       if (timerFill) timerFill.style.width = `${Math.max(0, Math.min(100, (timeRemainingMs / timeLimitMs) * 100))}%`;
     },
-    updateMissionPattern(pattern, cursor, previewVisible) {
+    updateMissionPattern(pattern, cursor, previewVisible, previewIndex) {
       const phase = root.querySelector<HTMLElement>('.pattern-phase');
-      if (phase) phase.textContent = previewVisible ? '기억하세요' : '순서대로 입력';
-      root.querySelector<HTMLElement>('.pattern-slot')?.replaceChildren(createPatternDisplay(pattern, cursor, previewVisible));
+      if (phase) phase.textContent = previewVisible ? '신호 스캔' : '입력하세요';
+      root.querySelector<HTMLElement>('.pattern-slot')?.replaceChildren(createPatternDisplay(pattern, cursor, previewVisible, previewIndex));
+      root.querySelectorAll<HTMLButtonElement>('.direction-button').forEach((button) => {
+        button.disabled = previewVisible;
+        button.classList.toggle('gi-pulse', !previewVisible && cursor === 0);
+      });
     },
     showResult(options) {
       clear();

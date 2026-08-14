@@ -8,17 +8,17 @@ export interface RescueAgentView {
   update(deltaMs: number): void;
 }
 
-const DIRECTIONS: Record<Direction, THREE.Vector3> = {
-  up: new THREE.Vector3(0, 0, -2.1),
-  right: new THREE.Vector3(2.1, 0, 0),
-  down: new THREE.Vector3(0, 0, 2.1),
-  left: new THREE.Vector3(-2.1, 0, 0),
+const DIRECTION_ANCHORS: Record<Direction, THREE.Vector3> = {
+  up: new THREE.Vector3(0, 0.55, -2.4),
+  right: new THREE.Vector3(2.4, 0.55, 0),
+  down: new THREE.Vector3(0, 0.55, 2.4),
+  left: new THREE.Vector3(-2.4, 0.55, 0),
 };
 
 export function createRescueAgent(): RescueAgentView {
   const root = new THREE.Group();
   root.name = 'rescue-agent';
-  root.position.set(0, 0.55, 3.8);
+  root.position.copy(DIRECTION_ANCHORS.down);
 
   const body = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.46, 0.74, 5, 12),
@@ -58,8 +58,8 @@ export function createRescueAgent(): RescueAgentView {
   return {
     root,
     moveTo(direction) {
-      target.copy(root.position).add(DIRECTIONS[direction]);
-      facing = Math.atan2(DIRECTIONS[direction].x, -DIRECTIONS[direction].z);
+      target.copy(DIRECTION_ANCHORS[direction]);
+      facing = Math.atan2(DIRECTION_ANCHORS[direction].x, -DIRECTION_ANCHORS[direction].z);
     },
     update(deltaMs) {
       const alpha = 1 - Math.pow(0.001, Math.min(deltaMs, 50) / 1000);

@@ -20,8 +20,9 @@ import { createRepairTarget, type RepairTargetView } from '../render/objects/rep
 import { createRescueAgent, type RescueAgentView } from '../render/objects/rescue-agent';
 import { createSpaceBase } from '../render/objects/space-base';
 import { createGameUi, type GameUi } from '../ui/game-ui';
+import { getPreviewDurationMs, getPreviewIndex } from './simulation/pattern-preview';
 
-const TUTORIAL_PATTERNS: readonly Direction[][] = [['up'], ['right'], ['down']];
+const TUTORIAL_PATTERNS: readonly Direction[][] = [['up'], ['up', 'right'], ['left', 'down', 'right']];
 
 export class RhythmRescueGame {
   private readonly rendererHandle: RendererHandle;
@@ -44,6 +45,7 @@ export class RhythmRescueGame {
   private rails?: EnergyRailsView;
   private obstacles?: ObstaclesView;
   private previewUntil = 0;
+  private previewStartedAt = 0;
   private elapsedMs = 0;
   private hudRefreshMs = 0;
   private disposed = false;
@@ -85,7 +87,7 @@ export class RhythmRescueGame {
     this.content = getMissionContent(id);
     this.run = createMissionRun(config, { random: Math.random, tutorialPatterns: id === 'short-01' ? TUTORIAL_PATTERNS : undefined });
     this.clock = createMissionClock(this.content.timeLimitMs);
-    this.previewUntil = performance.now() + this.content.patternPreviewMs;
+    this.beginPreview();
     this.elapsedMs = 0;
     this.state = { screen: 'mission', paused: false };
     this.input.setEnabled(true);
@@ -103,20 +105,25 @@ export class RhythmRescueGame {
     const next = submitRunDirection(previous, direction, { random: Math.random, tutorialPatterns: this.content.id === 'short-01' ? TUTORIAL_PATTERNS : undefined });
     const wrong = next.totalMistakes > previous.totalMistakes;
     this.feedbackBus.emit(wrong ? 'input-wrong' : 'input-correct');
-    this.agent?.moveTo(direction);
-    this.rails?.pulse(direction);
+      if (!wrong) {
+        this.agent?.moveTo(direction);
+        this.rails?.pulse(direction);
+        this.obstacles?.reactTo(direction);
+      }
 
     if (next.currentPoint.phase === 'recovery') {
       this.run = useRunRecovery(next);
       this.feedbackBus.emit('recovery-used');
-      this.previewUntil = performance.now() + 550;
+      this.beginPreview();
       this.renderMission('신호가 흔들렸습니다. 패턴을 다시 기억하세요.');
+      this.updateRepairFeedback();
       return;
     }
     this.run = next;
+    this.updateRepairFeedback();
     if (this.run.completedPoints > previous.completedPoints) {
       this.feedbackBus.emit('point-complete');
-      this.previewUntil = performance.now() + this.content.patternPreviewMs;
+      this.beginPreview();
     }
     if (this.run.phase === 'complete') {
       this.feedbackBus.emit('mission-complete');
@@ -158,14 +165,23 @@ export class RhythmRescueGame {
     this.agent?.update(deltaMs);
     this.target?.update(deltaMs);
     this.obstacles?.update(this.elapsedMs);
-    if (this.state.screen === 'mission' && !this.state.paused && this.clock && performance.now() >= this.previewUntil) {
-      this.clock = tickMissionClock(this.clock, deltaMs);
-      if (isMissionClockExpired(this.clock)) this.handleClockExpired();
+    if (this.state.screen === 'mission' && !this.state.paused && this.clock && this.content && this.run) {
+      const now = performance.now();
+      const previewVisible = now < this.previewUntil;
+      if (!previewVisible) {
+        this.clock = tickMissionClock(this.clock, deltaMs);
+        if (isMissionClockExpired(this.clock)) this.handleClockExpired();
+      }
       this.hudRefreshMs += deltaMs;
-      if (this.hudRefreshMs >= 250 && this.state.screen === 'mission' && this.content) {
+      if (this.hudRefreshMs >= 120 && this.state.screen === 'mission') {
         this.hudRefreshMs = 0;
         this.ui.updateMissionTimer(this.clock.remainingMs, this.content.timeLimitMs);
-        this.ui.updateMissionPattern(this.run?.currentPoint.pattern ?? [], this.run?.currentPoint.cursor ?? 0, performance.now() < this.previewUntil);
+        this.ui.updateMissionPattern(
+          this.run.currentPoint.pattern,
+          this.run.currentPoint.cursor,
+          previewVisible,
+          previewVisible ? getPreviewIndex(now - this.previewStartedAt, this.run.currentPoint.pattern.length, this.content.previewBeatMs) : -1,
+        );
       }
     }
     if (this.agent) this.camera.update(this.agent.root, deltaMs);
@@ -176,7 +192,7 @@ export class RhythmRescueGame {
     if (!this.run || !this.content) return;
     if (this.run.currentPoint.recoveriesLeft > 0) {
       this.run = useRunRecovery({ ...this.run, totalMistakes: this.run.totalMistakes + 1 });
-      this.previewUntil = performance.now() + this.content.patternPreviewMs;
+      this.beginPreview();
       this.renderMission('시간이 다 됐습니다. 구조대 복구 신호를 사용합니다.');
       return;
     }
@@ -214,6 +230,9 @@ export class RhythmRescueGame {
       pattern: this.run.currentPoint.pattern,
       cursor: this.run.currentPoint.cursor,
       previewVisible,
+      previewIndex: previewVisible
+        ? getPreviewIndex(performance.now() - this.previewStartedAt, this.run.currentPoint.pattern.length, this.content.previewBeatMs)
+        : -1,
       combo: this.run.combo,
       bestCombo: this.run.bestCombo,
       parts: this.progress.parts,
@@ -246,6 +265,13 @@ export class RhythmRescueGame {
     this.obstacles = undefined;
   }
 
+  private beginPreview(): void {
+    if (!this.run || !this.content) return;
+    this.previewStartedAt = performance.now();
+    const durationMs = getPreviewDurationMs(this.run.currentPoint.pattern.length, this.content.previewBeatMs);
+    this.previewUntil = this.previewStartedAt + durationMs;
+  }
+
   private mountMissionWorld(): void {
     this.playGroup.clear();
     this.playGroup.add(createSpaceBase());
@@ -255,8 +281,16 @@ export class RhythmRescueGame {
     this.playGroup.add(this.agent.root);
     this.target = createRepairTarget();
     this.playGroup.add(this.target.root);
+    this.updateRepairFeedback();
     this.obstacles = createObstacles(this.content?.obstacle ?? 'none');
     this.playGroup.add(this.obstacles.root);
+  }
+
+  private updateRepairFeedback(): void {
+    if (!this.run || !this.target) return;
+    const missionProgress = this.run.completedPoints / this.run.repairPoints;
+    const pointProgress = this.run.currentPoint.cursor / this.run.currentPoint.pattern.length / this.run.repairPoints;
+    this.target.setRepairPower(Math.min(1, Math.max(0.25, missionProgress + pointProgress)));
   }
 }
 

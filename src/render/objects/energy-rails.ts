@@ -31,9 +31,9 @@ export function createEnergyRails(): EnergyRailsView {
     pulse(direction) {
       const rail = root.getObjectByName(`energy-rail-${direction}`);
       if (!rail) return;
-      rail.scale.y = 1.45;
+      rail.scale.z = 1.45;
       window.setTimeout(() => {
-        rail.scale.y = 1;
+        rail.scale.z = 1;
       }, 180);
     },
   };

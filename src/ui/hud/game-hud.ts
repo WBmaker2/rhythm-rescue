@@ -9,6 +9,7 @@ export interface MissionHudView {
   pattern: readonly Direction[];
   cursor: number;
   previewVisible: boolean;
+  previewIndex: number;
   combo: number;
   bestCombo: number;
   parts: number;
@@ -41,26 +42,29 @@ export function renderMissionHud(container: HTMLElement, view: MissionHudView): 
     <section class="pattern-panel" aria-live="polite">
       <div class="pattern-panel-heading">
         <span class="eyebrow">홀로그램 수리 패턴</span>
-        <span class="pattern-phase">${view.previewVisible ? '기억하세요' : '순서대로 입력'}</span>
+        <span class="pattern-phase">${view.previewVisible ? '신호 스캔' : '입력하세요'}</span>
       </div>
       <div class="pattern-slot"></div>
       <div class="timer-track" aria-label="남은 입력 시간">
         <span class="timer-fill"></span>
       </div>
       <span class="progress-copy">입력 ${view.cursor} / ${view.pattern.length}</span>
+      <p class="mission-status" aria-live="polite">${escapeHtml(view.status ?? '수리 신호를 기다리는 중입니다.')}</p>
     </section>
-    <p class="mission-status" aria-live="polite">${escapeHtml(view.status ?? '수리 신호를 기다리는 중입니다.')}</p>
   `;
 
   const patternSlot = main.querySelector<HTMLElement>('.pattern-slot');
-  patternSlot?.append(createPatternDisplay(view.pattern, view.cursor, view.previewVisible));
+  patternSlot?.append(createPatternDisplay(view.pattern, view.cursor, view.previewVisible, view.previewIndex));
   const timerFill = main.querySelector<HTMLElement>('.timer-fill');
   if (timerFill) timerFill.style.width = `${Math.max(0, Math.min(100, (view.timeRemainingMs / view.timeLimitMs) * 100))}%`;
 
   const pauseButton = main.querySelector<HTMLButtonElement>('[data-action="pause"]');
   pauseButton?.addEventListener('click', view.onPause);
 
-  const controls = createDirectionControls(view.onDirection, { pulse: view.cursor === 0 && !view.previewVisible });
+  const controls = createDirectionControls(view.onDirection, {
+    pulse: view.cursor === 0 && !view.previewVisible,
+    disabled: view.previewVisible,
+  });
   main.append(controls);
   container.append(main);
 }

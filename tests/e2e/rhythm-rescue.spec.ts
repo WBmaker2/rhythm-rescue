@@ -2,7 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function waitForInput(page: Page): Promise<void> {
   await expect(page.locator('.mission-screen')).toBeVisible();
-  await expect(page.locator('.pattern-phase')).toHaveText('순서대로 입력');
+  await expect(page.locator('.pattern-phase')).toHaveText('입력하세요');
+  await expect(page.locator('[data-direction="up"]')).toBeEnabled();
 }
 
 async function input(page: Page, direction: 'up' | 'right' | 'down' | 'left'): Promise<void> {
@@ -17,8 +18,11 @@ async function completeTutorial(page: Page): Promise<void> {
   await expect(page.locator('[data-action="start-mission"]')).toHaveClass(/gi-pulse/);
   await page.locator('[data-action="start-mission"]').click();
   await input(page, 'up');
+  await input(page, 'up');
   await input(page, 'right');
+  await input(page, 'left');
   await input(page, 'down');
+  await input(page, 'right');
   await expect(page.locator('.result-screen')).toBeVisible();
 }
 
@@ -49,15 +53,50 @@ test('shows recovery feedback after an incorrect signal', async ({ page }) => {
   await expect(page.locator('.mission-status')).toContainText('신호가 흔들렸습니다');
 });
 
+test('locks input during signal scan and keeps the HUD outside the playfield center', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/');
+  await page.locator('[data-action="start-mission"]').click();
+  await expect(page.locator('.pattern-phase')).toHaveText('신호 스캔');
+  await expect(page.locator('[data-direction="up"]')).toBeDisabled();
+
+  const layout = await page.evaluate(() => {
+    const rect = (selector: string) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      const value = element?.getBoundingClientRect();
+      return value ? { left: value.left, right: value.right, top: value.top, bottom: value.bottom, width: value.width } : null;
+    };
+    return {
+      objective: rect('.objective-chip'),
+      status: rect('.status-strip'),
+      pattern: rect('.pattern-panel'),
+      controls: rect('.direction-pad'),
+    };
+  });
+
+  expect(layout.pattern?.left).toBeLessThan(32);
+  expect(layout.pattern?.width).toBeLessThan(310);
+  expect(layout.objective?.right).toBeLessThan(layout.status?.left ?? 0);
+  expect(layout.pattern?.bottom).toBeLessThan(layout.controls?.top ?? 0);
+  await page.waitForTimeout(900);
+  await waitForInput(page);
+});
+
 test('supports keyboard input and saves the reward when returning to base', async ({ page }) => {
   await page.goto('/');
   await page.locator('[data-action="start-mission"]').click();
   await waitForInput(page);
   await page.keyboard.press('ArrowUp');
   await waitForInput(page);
+  await page.keyboard.press('ArrowUp');
+  await waitForInput(page);
   await page.keyboard.press('ArrowRight');
   await waitForInput(page);
+  await page.keyboard.press('ArrowLeft');
+  await waitForInput(page);
   await page.keyboard.press('ArrowDown');
+  await waitForInput(page);
+  await page.keyboard.press('ArrowRight');
   await expect(page.locator('.result-screen')).toBeVisible();
   await page.locator('[data-action="return-to-base"]').click();
   await expect(page.locator('.base-screen')).toBeVisible();

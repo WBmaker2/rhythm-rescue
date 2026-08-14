@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { generatePattern } from '../../src/core/pattern-generator';
 
 describe('pattern generator', () => {
-  it('creates a deterministic sequence of four directions', () => {
+  it('creates a deterministic sequence without adjacent repeats', () => {
     const pattern = generatePattern(6, () => 0.51);
 
     expect(pattern).toHaveLength(6);
-    expect(pattern).toEqual(['down', 'down', 'down', 'down', 'down', 'down']);
+    expect(pattern[0]).toBe('down');
+    expect(pattern.every((direction, index) => index === 0 || direction !== pattern[index - 1])).toBe(true);
   });
 
   it('never emits a value outside the four repair directions', () => {

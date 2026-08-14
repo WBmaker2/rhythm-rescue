@@ -1,5 +1,12 @@
 [
   {
+    "id": "gameplay-revision",
+    "patterns": ["gameplay", "pattern preview", "compact mission hud", "sequential pattern", "scan input"],
+    "fallbackDate": "2026-08-14",
+    "title": "기억하고 따라가는 구조 신호",
+    "summary": "중앙 플레이필드를 보호하는 HUD와 박자에 맞춘 순차 패턴 입력을 추가했습니다."
+  },
+  {
     "id": "three-dimensional-rescue",
     "patterns": ["three runtime", "3d redesign", "procedural three", "low chrome rescue hud", "migrate rhythm rescue to three"],
     "fallbackDate": "2026-08-14",

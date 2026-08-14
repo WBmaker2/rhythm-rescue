@@ -8,8 +8,8 @@ describe('update history', () => {
     expect(history.length).toBeGreaterThan(1);
     expect(history[0]).toMatchObject({
       date: '2026-08-14',
-      title: '3D 구조대 출동',
-      summary: 'Three.js 기반 3인칭 구조 임무와 로우폴리 우주 기지를 추가했습니다.',
+      title: '기억하고 따라가는 구조 신호',
+      summary: '중앙 플레이필드를 보호하는 HUD와 박자에 맞춘 순차 패턴 입력을 추가했습니다.',
     });
     expect(history.every(({ date }) => /^\d{4}-\d{2}-\d{2}$/.test(date))).toBe(true);
     expect(history[0].date >= history[1].date).toBe(true);

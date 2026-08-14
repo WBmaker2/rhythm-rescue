@@ -43,10 +43,12 @@ export function createRepairTarget(): RepairTargetView {
   root.add(ring);
 
   let power = 0.25;
+  root.userData.repairPower = power;
   return {
     root,
     setRepairPower(value) {
       power = Math.max(0.25, Math.min(1, value));
+      root.userData.repairPower = power;
       ring.scale.setScalar(0.88 + power * 0.16);
     },
     update(deltaMs) {

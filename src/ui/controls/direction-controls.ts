@@ -9,7 +9,7 @@ const BUTTONS: ReadonlyArray<{ direction: Direction; label: string; symbol: stri
 
 export function createDirectionControls(
   onDirection: (direction: Direction) => void,
-  options: { pulse?: boolean } = {},
+  options: { pulse?: boolean; disabled?: boolean } = {},
 ): HTMLDivElement {
   const pad = document.createElement('div');
   pad.className = 'direction-pad';
@@ -21,6 +21,7 @@ export function createDirectionControls(
     button.type = 'button';
     button.className = `direction-button direction-${direction}`;
     if (options.pulse) button.classList.add('gi-pulse');
+    button.disabled = options.disabled === true;
     button.dataset.direction = direction;
     button.setAttribute('aria-label', label);
     button.textContent = symbol;

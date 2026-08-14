@@ -10,11 +10,12 @@ describe('update history generator', () => {
     ]);
 
     expect(result).toEqual([
-      expect.objectContaining({ date: '2026-08-14', title: '3D 구조대 출동' }),
-      expect.objectContaining({ date: '2026-08-13', title: '기지 성장과 본부 꾸미기' }),
-      expect.objectContaining({ date: '2026-08-12', title: '구조 피드백과 접근성' }),
-      expect.objectContaining({ date: '2026-08-11', title: '본부 시스템의 스킨' }),
-      expect.objectContaining({ date: '2026-08-10', title: '리듬 구조 시작' }),
+      expect.objectContaining({ date: '2026-08-14', title: '기억하고 따라가는 구조 신호' }),
+      expect.objectContaining({ date: '2026-08-13', title: '3D 구조대 출동' }),
+      expect.objectContaining({ date: '2026-08-12', title: '기지 성장과 본부 꾸미기' }),
+      expect.objectContaining({ date: '2026-08-11', title: '구조 피드백과 접근성' }),
+      expect.objectContaining({ date: '2026-08-10', title: '본부 시스템의 스킨' }),
+      expect.objectContaining({ date: '2026-08-09', title: '리듬 구조 시작' }),
     ]);
   });
 });

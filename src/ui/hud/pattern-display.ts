@@ -11,6 +11,7 @@ export function createPatternDisplay(
   pattern: readonly Direction[],
   cursor: number,
   previewVisible: boolean,
+  previewIndex = pattern.length - 1,
 ): HTMLDivElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'pattern-display';
@@ -19,10 +20,10 @@ export function createPatternDisplay(
   for (const [index, direction] of pattern.entries()) {
     const token = document.createElement('span');
     token.className = 'pattern-token';
-    const revealed = previewVisible || index < cursor;
+    const revealed = previewVisible ? index <= previewIndex : index < cursor;
     token.textContent = revealed ? SYMBOLS[direction] : '•';
     token.classList.toggle('pattern-token-complete', index < cursor);
-    token.classList.toggle('pattern-token-current', index === cursor && !previewVisible);
+    token.classList.toggle('pattern-token-current', previewVisible ? index === previewIndex : index === cursor);
     token.setAttribute('aria-hidden', 'true');
     wrapper.append(token);
   }
