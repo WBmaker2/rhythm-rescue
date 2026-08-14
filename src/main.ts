@@ -1,19 +1,12 @@
-import Phaser from 'phaser';
-import { BootScene } from './scenes/boot-scene';
 import './styles.css';
-import { BaseScene } from './scenes/base-scene';
-import { MissionScene } from './scenes/mission-scene';
-import { ResultScene } from './scenes/result-scene';
+import { createRhythmRescueGame } from './game/rhythm-rescue-game';
 
-new Phaser.Game({
-  type: Phaser.AUTO,
-  parent: 'app',
-  width: 1280,
-  height: 720,
-  backgroundColor: '#0b1630',
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-  },
-  scene: [BootScene, BaseScene, MissionScene, ResultScene],
-});
+const worldRoot = document.getElementById('game-world');
+const uiRoot = document.getElementById('game-ui');
+
+if (!worldRoot || !uiRoot) {
+  throw new Error('Rhythm Rescue roots are missing');
+}
+
+const game = createRhythmRescueGame(worldRoot, uiRoot);
+game.start();

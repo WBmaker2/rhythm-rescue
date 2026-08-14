@@ -12,6 +12,6 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    exclude: ['tests/e2e/**'],
+    exclude: ['tests/e2e/**', '**/node_modules/**', '**/.runtime-node_modules/**'],
   },
 });

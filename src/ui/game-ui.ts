@@ -3,10 +3,13 @@ import { createBaseMenu, type BaseMenuOptions } from './menus/base-menu';
 import { createPauseMenu } from './menus/pause-menu';
 import { createResultMenu, type ResultMenuOptions } from './menus/result-menu';
 import { renderMissionHud, type MissionHudView } from './hud/game-hud';
+import { createPatternDisplay } from './hud/pattern-display';
 
 export interface GameUi {
   showBase(options: BaseMenuOptions): void;
   showMission(options: MissionHudView): void;
+  updateMissionTimer(timeRemainingMs: number, timeLimitMs: number): void;
+  updateMissionPattern(pattern: readonly Direction[], cursor: number, previewVisible: boolean): void;
   showResult(options: ResultMenuOptions): void;
   showPause(onResume: () => void): void;
   clear(): void;
@@ -31,13 +34,22 @@ export function createGameUi(root: HTMLElement): GameUi {
       clear();
       renderMissionHud(root, options);
     },
+    updateMissionTimer(timeRemainingMs, timeLimitMs) {
+      const timerFill = root.querySelector<HTMLElement>('.timer-fill');
+      if (timerFill) timerFill.style.width = `${Math.max(0, Math.min(100, (timeRemainingMs / timeLimitMs) * 100))}%`;
+    },
+    updateMissionPattern(pattern, cursor, previewVisible) {
+      const phase = root.querySelector<HTMLElement>('.pattern-phase');
+      if (phase) phase.textContent = previewVisible ? '기억하세요' : '순서대로 입력';
+      root.querySelector<HTMLElement>('.pattern-slot')?.replaceChildren(createPatternDisplay(pattern, cursor, previewVisible));
+    },
     showResult(options) {
       clear();
       root.append(createResultMenu(options));
       root.dataset.screen = 'result';
     },
     showPause(onResume) {
-      root.querySelector('[data-screen="mission"]')?.append(createPauseMenu(onResume));
+      root.querySelector('.mission-screen')?.append(createPauseMenu(onResume));
     },
     clear,
     getRoot() {

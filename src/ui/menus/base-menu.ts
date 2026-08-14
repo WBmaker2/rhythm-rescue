@@ -4,13 +4,14 @@ export interface BaseMenuOptions {
   parts: number;
   baseLevel: number;
   onStart(): void;
+  onStartMedium?(): void;
+  onStartLong?(): void;
   onSettings?(): void;
 }
 
 export function createBaseMenu(options: BaseMenuOptions): HTMLElement {
   const screen = document.createElement('main');
   screen.className = 'screen base-screen';
-  screen.dataset.screen = 'base';
   screen.innerHTML = `
     <div class="base-topline"><span class="brand-mark">RR / 03</span><span class="live-badge"><i></i> 구조 신호 수신 중</span></div>
     <div class="base-copy">
@@ -24,6 +25,10 @@ export function createBaseMenu(options: BaseMenuOptions): HTMLElement {
     </div>
     <button class="primary-button launch-button gi-pulse" type="button" data-action="start-mission">출동 시작 <span>→</span></button>
     <p class="control-hint">방향키 / WASD 또는 화면 버튼으로 구조대를 움직이세요</p>
+    <div class="mission-options" aria-label="추가 구조 임무">
+      <button class="secondary-button mission-option" type="button" data-action="start-medium">드론 경계 임무</button>
+      <button class="secondary-button mission-option" type="button" data-action="start-long">혼합 장애물 임무</button>
+    </div>
     <div class="base-footer-actions">
       <button class="secondary-button" type="button" data-action="update-history">업데이트 내역</button>
       <button class="secondary-button" type="button" data-action="settings">접근성 설정</button>
@@ -39,6 +44,8 @@ export function createBaseMenu(options: BaseMenuOptions): HTMLElement {
     startButton.classList.remove('gi-pulse');
     options.onStart();
   });
+  screen.querySelector<HTMLButtonElement>('[data-action="start-medium"]')?.addEventListener('click', () => options.onStartMedium?.());
+  screen.querySelector<HTMLButtonElement>('[data-action="start-long"]')?.addEventListener('click', () => options.onStartLong?.());
 
   const panel = screen.querySelector<HTMLElement>('[data-update-panel]');
   const list = screen.querySelector<HTMLUListElement>('[data-update-list]');

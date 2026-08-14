@@ -11,7 +11,6 @@ export interface ResultMenuOptions {
 export function createResultMenu(options: ResultMenuOptions): HTMLElement {
   const screen = document.createElement('main');
   screen.className = 'screen result-screen';
-  screen.dataset.screen = 'result';
   screen.innerHTML = `
     <p class="eyebrow">STRUCTURE COMPLETE</p>
     <h1>수리 성공!</h1>

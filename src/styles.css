@@ -57,6 +57,8 @@ h2 { margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.5rem); }
 .primary-button:hover, .secondary-button:hover, .direction-button:hover { transform: translateY(-2px); filter: brightness(1.1); }
 .control-hint { margin: 14px 0 0; color: var(--muted); font-size: .84rem; }
 .base-footer-actions { display: flex; gap: 10px; margin-top: 22px; }
+.mission-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+.mission-option { border-color: rgba(255, 159, 67, .35); color: #ffd5ae; }
 
 .mission-ui-layer { position: absolute; inset: 0; pointer-events: none; }
 .mission-ui-layer > * { pointer-events: auto; }
