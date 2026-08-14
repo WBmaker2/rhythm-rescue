@@ -6,7 +6,7 @@
 
 **Architecture:** `src/core`와 `src/game/simulation`이 저장 가능한 게임 규칙과 타이머를 소유한다. `src/render`는 Three.js 장면·카메라·오브젝트를 그 상태에 맞춰 갱신하며, `src/ui`는 DOM HUD·메뉴·접근성·업데이트 내역을 담당한다. 앱 진입점은 하나의 `RhythmRescueGame` 런타임으로 기지·임무·결과 화면을 전환한다.
 
-**Tech Stack:** TypeScript, Vite, Three.js, DOM overlays, Vitest, Playwright, GitHub Pages
+**Tech Stack:** TypeScript, Vite, Three.js, DOM overlays, Vitest, jsdom, Playwright, GitHub Pages
 
 ## Global Constraints
 
@@ -18,6 +18,7 @@
 - 단계 진행에 필요한 `출동 시작`, 방향 입력, `기지로 돌아가기`, 다음 구조 요청 버튼에는 `gi-pulse`를 적용하고 reduced-motion에서는 정적 강조로 대체한다.
 - 랜딩 화면에는 작은 `업데이트 내역` 버튼과 날짜별 기록이 있어야 한다.
 - 데스크톱의 방향키/WASD와 모바일의 4방향 터치 입력은 동일한 Direction 액션으로 변환한다.
+- DOM 단위 테스트는 Vitest의 `jsdom` 환경에서 실행하고, 순수 simulation 테스트는 Node 환경을 유지한다.
 - 모든 작업은 작업별 테스트 또는 빌드 검증 후 커밋한다.
 
 ---
@@ -263,6 +264,7 @@ git commit -m "feat: add procedural three rescue scene"
 - Create: `src/ui/menus/pause-menu.ts`
 - Create: `src/ui/menus/result-menu.ts`
 - Create: `tests/ui/game-ui.test.ts`
+- Modify: `package.json` to add the `jsdom` dev dependency
 - Modify: `src/core/update-history-catalog.json`
 - Modify: `src/styles.css`
 - Modify: `scripts/generate-update-history.mjs` only if the new entry shape requires it
@@ -300,6 +302,8 @@ Expected: FAIL with a module-not-found error for `src/ui/game-ui`.
 
 - [ ] **Step 3: Implement the DOM screens and HUD.**
 
+Run `npm install -D jsdom` before implementing the browser-facing modules. Add `/** @vitest-environment jsdom */` as the first line of `tests/ui/game-ui.test.ts` so the UI contract test has a real DOM while the rest of the Vitest suite remains on the Node environment.
+
 The base view must include `data-action="start-mission"`, a small `업데이트 내역` button, and a closed-by-default update panel. The mission view must include `aria-live="polite"`, pattern preview, timer, status strip, and direction buttons. The result view must include `data-action="return-to-base"` and `data-action="next-mission"` as applicable.
 
 - [ ] **Step 4: Replace styles with the approved neon low-poly UI system.**
@@ -331,7 +335,7 @@ Run: `npm test -- tests/ui/game-ui.test.ts tests/core/update-history.test.ts`
 Expected: PASS.
 
 ```powershell
-git add src/ui src/styles.css src/core/update-history-catalog.json src/core/update-history.generated.ts scripts/generate-update-history.mjs tests/ui
+git add src/ui src/styles.css src/core/update-history-catalog.json src/core/update-history.generated.ts scripts/generate-update-history.mjs tests/ui package.json package-lock.json
 git commit -m "feat: add low chrome rescue HUD"
 ```
 
